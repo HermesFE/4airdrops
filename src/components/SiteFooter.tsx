@@ -1,16 +1,24 @@
+"use client";
+
 import { binanceUrl } from "@/lib/data";
+import { useI18n } from "@/i18n/I18nProvider";
 
 export function SiteFooter() {
+  const { m } = useI18n();
+  const link = (
+    <a href={binanceUrl()} target="_blank" rel="noopener noreferrer sponsored">
+      {m.footer.link}
+    </a>
+  );
+  const parts = m.footer.body.split("{link}");
   return (
     <footer className="site-footer">
       <div className="site-footer-inner">
-        <h2>披露 / Disclosure</h2>
+        <h2>{m.footer.title}</h2>
         <p>
-          本站含{" "}
-          <a href={binanceUrl()} target="_blank" rel="noopener noreferrer sponsored">
-            Binance 联盟推广链接
-          </a>
-          。通过本站链接注册并交易，我们可能获得返佣，不会额外增加你的费用。活动信息来自公开聚合，可能过期或有风险，请自行核实（DYOR）。我们不保管助记词，也不要求连接钱包领奖。
+          {parts[0]}
+          {link}
+          {parts[1] ?? ""}
         </p>
       </div>
     </footer>

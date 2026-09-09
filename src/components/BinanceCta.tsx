@@ -1,22 +1,25 @@
+"use client";
+
 import { binanceUrl } from "@/lib/data";
+import { useI18n } from "@/i18n/I18nProvider";
 
 export function BinanceCta({ compact = false }: { compact?: boolean }) {
   const href = binanceUrl();
+  const { m } = useI18n();
   if (compact) {
     return (
       <a href={href} target="_blank" rel="noopener noreferrer sponsored">
-        Binance 返佣注册
+        {m.binance.compact}
       </a>
     );
   }
   return (
-    <p className="note">
-      <span className="k">推广</span>
-      本站通过 Binance 注册返佣维持运营。
+    <p className="promo-row">
+      <span className="k">{m.binance.k}</span>
       <a href={href} target="_blank" rel="noopener noreferrer sponsored">
-        前往 Binance 注册（返佣链接）
+        {m.binance.line}
       </a>
-      — 不增加手续费，能帮站点继续更新活动表。
+      <span className="promo-suffix"> · {m.binance.suffix}</span>
     </p>
   );
 }

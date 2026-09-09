@@ -1,21 +1,22 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #f7f7f4;
+  --bg: #c8c2b4;
   --paper: #ffffff;
   --ink: #111111;
   --muted: #555555;
-  --line: #b4b4b4;
-  --line-soft: #d0d0d0;
-  --header: #e4e4e0;
-  --bar: #ecece8;
-  --zebra: #f3f3ee;
+  --line: #7f7f7f;
+  --grid: #b4b4b4;
+  --header: #d6dce4;
+  --bar: #d4d0c8;
+  --zebra: #eef2f7;
   --hover: #fff8c5;
   --link: #0000cc;
   --link-visited: #551a8b;
   --danger: #8b0000;
-  --note-bg: #ffffee;
-  --note-line: #cccc99;
+  --note-bg: #ffffcc;
+  --note-line: #b8b06a;
+  --meta: #c5d0de;
 }
 
 * {
@@ -32,7 +33,7 @@ body {
   background: var(--bg);
   color: var(--ink);
   font-family: Tahoma, Verdana, Geneva, "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
-  line-height: 1.45;
+  line-height: 1.4;
 }
 
 a {
@@ -49,31 +50,28 @@ a:hover {
 }
 
 h1,
-h2,
-h3 {
+h2 {
   font-weight: 700;
   color: #222;
 }
 
 h1 {
-  font-size: 1.35rem;
-  margin: 0 0 0.4rem;
+  font-size: 1.15rem;
+  margin: 0;
 }
 
 h2 {
-  font-size: 1.1rem;
+  font-size: 1rem;
   margin: 0 0 0.35rem;
 }
 
 .page {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 10px 12px 28px;
+  padding: 8px 8px 24px;
 }
 
-.lede,
-.hint,
-.meta {
+.lede {
   margin: 0 0 8px;
   color: var(--muted);
   font-size: 12px;
@@ -87,11 +85,11 @@ h2 {
 .topbar-inner {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 6px 12px;
+  padding: 4px 8px;
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
 }
 
 .sitename {
@@ -118,17 +116,35 @@ h2 {
 .nav {
   display: flex;
   flex-wrap: wrap;
-  gap: 0;
+  align-items: baseline;
   color: var(--muted);
   font-size: 12px;
 }
 
-.nav a {
-  margin: 0 0.35rem;
+.nav a,
+.nav button {
+  margin: 0 0.3rem;
 }
 
 .nav .sep {
-  color: #999;
+  color: #888;
+}
+
+.lang-switch button {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: var(--link);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.lang-switch button.on {
+  color: var(--ink);
+  font-weight: 700;
+  text-decoration: none;
+  cursor: default;
 }
 
 .site-footer {
@@ -139,7 +155,7 @@ h2 {
 .site-footer-inner {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 10px 12px 16px;
+  padding: 8px;
   color: var(--muted);
   font-size: 12px;
 }
@@ -147,79 +163,105 @@ h2 {
 .site-footer h2 {
   font-size: 12px;
   color: #333;
-  margin-bottom: 4px;
 }
 
 .site-footer p {
   margin: 0;
 }
 
-.note {
-  border: 1px solid var(--note-line);
-  background: var(--note-bg);
-  padding: 6px 8px;
-  margin: 0 0 10px;
+.workbook {
+  border: 1px solid #6d6d6d;
+  background: var(--paper);
+}
+
+.sheet-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 12px;
+  padding: 4px 8px;
+  background: var(--meta);
+  border-bottom: 1px solid var(--line);
+}
+
+.sheet-sub,
+.sheet-count {
+  color: #333;
   font-size: 12px;
 }
 
-.note .k {
-  font-weight: 700;
-  color: #666600;
-  margin-right: 4px;
+.sheet-count {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
 }
 
-.toolbar {
+.reset {
+  border: 1px solid #808080;
+  background: #e8e8e8;
+  font: inherit;
+  font-size: 11px;
+  padding: 1px 6px;
+  cursor: pointer;
+}
+
+.sheet-note {
+  margin: 0;
+  padding: 3px 8px;
+  font-size: 11px;
+  color: #444;
+  background: #eef2f7;
+  border-bottom: 1px solid #c5c5c5;
+}
+
+.promo-row {
+  margin: 0;
+  padding: 2px 8px;
+  font-size: 12px;
+  background: var(--note-bg);
+  border-bottom: 1px solid var(--note-line);
+}
+
+.promo-row .k {
+  font-weight: 700;
+  color: #666600;
+  margin-right: 6px;
+}
+
+.promo-suffix {
+  color: #555;
+}
+
+.sheet-options {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 8px 14px;
-  border: 1px solid var(--line);
-  background: var(--paper);
-  padding: 6px 8px;
-  margin: 0 0 8px;
+  padding: 3px 8px;
+  background: #ece9d8;
+  border-bottom: 1px solid var(--line);
   font-size: 12px;
 }
 
-.toolbar label {
+.sheet-options label {
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  color: #333;
   white-space: nowrap;
 }
 
-.toolbar input[type="text"],
-.toolbar select,
-.field input,
-.field select,
-.field textarea {
-  border: 1px inset #808080;
+.sheet-options select,
+.col-filter {
+  border: 1px solid #7f7f7f;
   background: #fff;
   color: #000;
-  padding: 2px 4px;
   font: inherit;
+  font-size: 11px;
   border-radius: 0;
   box-shadow: none;
-  outline: none;
-}
-
-.toolbar input[type="text"] {
-  min-width: 16rem;
-}
-
-.toolbar select {
-  min-width: 8rem;
-}
-
-.count {
-  color: var(--muted);
-  font-size: 12px;
-  margin: 0 0 6px;
 }
 
 .sheet-wrap {
   overflow-x: auto;
-  border: 1px solid #808080;
   background: var(--paper);
 }
 
@@ -227,20 +269,12 @@ h2 {
   width: 100%;
   border-collapse: collapse;
   font-size: 12px;
-  font-family: "Tahoma", "Verdana", "PingFang SC", "Microsoft YaHei", sans-serif;
-}
-
-.sheet caption {
-  caption-side: top;
-  text-align: left;
-  padding: 4px 6px;
-  color: var(--muted);
 }
 
 .sheet th,
 .sheet td {
-  border: 1px solid #a8a8a8;
-  padding: 3px 6px;
+  border: 1px solid var(--grid);
+  padding: 2px 5px;
   text-align: left;
   vertical-align: top;
 }
@@ -248,21 +282,59 @@ h2 {
 .sheet thead th {
   position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: 2;
   background: var(--header);
-  color: #333;
+  color: #222;
   font-weight: 700;
-  white-space: nowrap;
-  border-color: var(--line);
+  border-color: #8a94a3;
+  box-shadow: inset 1px 1px 0 #fff;
+  min-width: 6.2rem;
+  vertical-align: bottom;
+}
+
+.sheet thead th.col-title {
+  min-width: 12rem;
+}
+
+.sheet thead th.is-filtered {
+  background: #c5d6ea;
+}
+
+.col-name {
+  line-height: 1.2;
+}
+
+.col-name button {
+  border: 0;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  color: inherit;
+}
+
+.col-filter {
+  display: block;
+  width: 100%;
+  margin-top: 3px;
+  min-width: 0;
+  height: 20px;
+  padding: 0 2px;
 }
 
 .sheet .row-num {
-  width: 2.2rem;
+  width: 2.1rem;
+  min-width: 2.1rem;
   text-align: right;
   color: #666;
-  background: #efefe9;
+  background: #ece9d8;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+}
+
+.sheet thead th.row-num {
+  background: #d6dce4;
 }
 
 .sheet tbody tr:nth-child(even) td:not(.row-num) {
@@ -299,13 +371,13 @@ h2 {
   width: 100%;
   border-collapse: collapse;
   background: var(--paper);
-  border: 1px solid #808080;
+  border: 1px solid #6d6d6d;
 }
 
 .record th,
 .record td {
-  border: 1px solid var(--line-soft);
-  padding: 5px 8px;
+  border: 1px solid var(--grid);
+  padding: 4px 8px;
   text-align: left;
   vertical-align: top;
   font-size: 13px;
