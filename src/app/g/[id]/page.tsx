@@ -17,44 +17,99 @@ export default async function GiveawayDetailPage({
   if (!g) notFound();
   const outbound = g.url || g.sourceUrl;
   return (
-    <div className="grid gap-6 lg:grid-cols-[1fr_280px]">
-      <article className="rounded-2xl border border-[#1e2a3c] bg-[#101826] p-6">
-        <Link href="/" className="text-sm text-[#8b9bb4] hover:text-white">← 返回目录</Link>
-        <div className="mt-3 flex flex-wrap gap-2 text-xs">
-          <span className="rounded-full bg-[#1a2740] px-2 py-0.5 text-[#93c5fd]">{g.platform}</span>
-          {g.category && <span className="rounded-full bg-[#18231f] px-2 py-0.5 text-[#86efac]">{g.category}</span>}
-          {g.status && <span className="rounded-full bg-[#1f2937] px-2 py-0.5 text-[#cbd5e1]">{g.status}</span>}
-        </div>
-        <h1 className="mt-3 text-2xl font-bold text-white">{g.title}</h1>
-        {g.host && <p className="mt-2 text-sm text-[#8b9bb4]">主办：{g.host}</p>}
-        <dl className="mt-6 space-y-3 text-sm">
-          <div><dt className="text-[#8b9bb4]">奖品</dt><dd className="mt-1 text-white whitespace-pre-wrap">{g.prize || g.prizeDetail || "—"}</dd></div>
+    <div className="stack">
+      <p className="back">
+        <Link href="/">← 返回目录</Link>
+      </p>
+      <h1>{g.title}</h1>
+      <table className="record">
+        <tbody>
+          <tr>
+            <th>平台</th>
+            <td>{g.platform || "—"}</td>
+          </tr>
+          {g.category ? (
+            <tr>
+              <th>分类</th>
+              <td>{g.category}</td>
+            </tr>
+          ) : null}
+          {g.status ? (
+            <tr>
+              <th>状态</th>
+              <td>{g.status}</td>
+            </tr>
+          ) : null}
+          {g.host ? (
+            <tr>
+              <th>主办</th>
+              <td>{g.host}</td>
+            </tr>
+          ) : null}
+          <tr>
+            <th>奖品</th>
+            <td style={{ whiteSpace: "pre-wrap" }}>{g.prize || g.prizeDetail || "—"}</td>
+          </tr>
+          {g.prizeDetail && g.prize && g.prizeDetail !== g.prize ? (
+            <tr>
+              <th>奖品明细</th>
+              <td style={{ whiteSpace: "pre-wrap" }}>{g.prizeDetail}</td>
+            </tr>
+          ) : null}
           {(g.deadlineBj || g.deadlineRaw) && (
-            <div><dt className="text-[#8b9bb4]">截止</dt><dd className="mt-1 text-white">{g.deadlineBj || g.deadlineRaw}</dd></div>
+            <tr>
+              <th>截止</th>
+              <td>{g.deadlineBj || g.deadlineRaw}</td>
+            </tr>
           )}
-          {g.region && <div><dt className="text-[#8b9bb4]">地区</dt><dd className="mt-1 text-white">{g.region}</dd></div>}
-          {g.entry && <div><dt className="text-[#8b9bb4]">参与方式</dt><dd className="mt-1 text-white whitespace-pre-wrap">{g.entry}</dd></div>}
-          {g.risk && (
-            <div className="rounded-xl border border-[#7f1d1d] bg-[#2a1212] p-3">
-              <dt className="text-[#fca5a5]">风险备注</dt>
-              <dd className="mt-1 text-[#fecaca]">{g.risk}</dd>
-            </div>
-          )}
-        </dl>
-        {outbound && (
-          <a
-            href={outbound}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-6 inline-flex rounded-xl bg-[#3b82f6] px-4 py-3 text-sm font-semibold text-white hover:brightness-110"
-          >
+          {g.region ? (
+            <tr>
+              <th>地区</th>
+              <td>{g.region}</td>
+            </tr>
+          ) : null}
+          {g.entry ? (
+            <tr>
+              <th>参与方式</th>
+              <td style={{ whiteSpace: "pre-wrap" }}>{g.entry}</td>
+            </tr>
+          ) : null}
+          {g.risk ? (
+            <tr>
+              <th>风险备注</th>
+              <td className="danger">{g.risk}</td>
+            </tr>
+          ) : null}
+          {outbound ? (
+            <tr>
+              <th>活动页</th>
+              <td>
+                <a href={outbound} target="_blank" rel="noopener noreferrer">
+                  {outbound}
+                </a>
+              </td>
+            </tr>
+          ) : null}
+          {g.sourceUrl && g.sourceUrl !== outbound ? (
+            <tr>
+              <th>来源</th>
+              <td>
+                <a href={g.sourceUrl} target="_blank" rel="noopener noreferrer">
+                  {g.sourceUrl}
+                </a>
+              </td>
+            </tr>
+          ) : null}
+        </tbody>
+      </table>
+      {outbound ? (
+        <p>
+          <a className="btn" href={outbound} target="_blank" rel="noopener noreferrer">
             打开活动页
           </a>
-        )}
-      </article>
-      <aside className="lg:sticky lg:top-20 lg:self-start">
-        <BinanceCta />
-      </aside>
+        </p>
+      ) : null}
+      <BinanceCta />
     </div>
   );
 }

@@ -13,7 +13,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="zh-CN">
       <body>
         <SiteHeader />
-        <main className="mx-auto min-h-[70vh] max-w-6xl px-4 py-8">{children}</main>
+        <main className="page">{children}</main>
         <SiteFooter />
       </body>
     </html>

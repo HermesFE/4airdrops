@@ -1,10 +1,23 @@
 import raw from "../../data/giveaways.json";
 import type { Giveaway, GiveawayFile } from "./types";
+import { cleanDisplayText } from "./text";
 
 const data = raw as GiveawayFile;
 
+function sanitizeGiveaway(g: Giveaway): Giveaway {
+  const prize = cleanDisplayText(g.prize) || undefined;
+  const prizeDetail = cleanDisplayText(g.prizeDetail) || undefined;
+  return {
+    ...g,
+    prize,
+    prizeDetail: prizeDetail && prizeDetail !== prize ? prizeDetail : undefined,
+    entry: cleanDisplayText(g.entry) || undefined,
+    risk: cleanDisplayText(g.risk) || undefined,
+  };
+}
+
 export function getAllGiveaways(): Giveaway[] {
-  return Array.isArray(data.items) ? data.items : [];
+  return Array.isArray(data.items) ? data.items.map(sanitizeGiveaway) : [];
 }
 
 export function getGiveaway(id: string): Giveaway | undefined {
