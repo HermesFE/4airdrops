@@ -3,7 +3,8 @@
 import Link from "next/link";
 import type { Giveaway } from "@/lib/types";
 import { BinanceCta } from "./BinanceCta";
-import { displayCategory, displayDeadline, displayPlatform, displayRegion } from "@/lib/fieldLabels";
+import { formatDeadline } from "@/lib/deadline";
+import { displayCategory, displayPlatform, displayRegion } from "@/lib/fieldLabels";
 import { statusLabel, useI18n } from "@/i18n/I18nProvider";
 import {
   cleanDisplayText,
@@ -43,6 +44,7 @@ export function GiveawayRecord({ g }: { g: Giveaway }) {
   const entry = displayEntry(g);
   const risk = displayRisk(g);
   const originals = originalRows(g, m);
+  const deadline = formatDeadline(g);
   return (
     <div className="stack">
       <p className="back">
@@ -85,10 +87,15 @@ export function GiveawayRecord({ g }: { g: Giveaway }) {
               <td style={{ whiteSpace: "pre-wrap" }}>{prizeDetailShown}</td>
             </tr>
           ) : null}
-          {(g.deadlineBj || g.deadlineRaw) && (
+          {deadline.text && (
             <tr>
               <th>{m.detail.deadline}</th>
-              <td>{displayDeadline(g.deadlineBj || g.deadlineRaw, locale)}</td>
+              <td title={deadline.title || undefined}>
+                {deadline.text}
+                {deadline.title && deadline.title !== deadline.text ? (
+                  <div className="deadline-raw">{deadline.title}</div>
+                ) : null}
+              </td>
             </tr>
           )}
           {g.firstSeen ? (
