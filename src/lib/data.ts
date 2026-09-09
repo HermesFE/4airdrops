@@ -1,6 +1,7 @@
 import raw from "../../data/giveaways.json";
 import type { Giveaway, GiveawayFile } from "./types";
 import { cleanDisplayText } from "./text";
+import { statusCode } from "./fieldLabels";
 
 const data = raw as GiveawayFile;
 
@@ -13,6 +14,7 @@ function sanitizeGiveaway(g: Giveaway): Giveaway {
     prizeDetail: prizeDetail && prizeDetail !== prize ? prizeDetail : undefined,
     entry: cleanDisplayText(g.entry) || undefined,
     risk: cleanDisplayText(g.risk) || undefined,
+    status: statusCode(g.status) || undefined,
   };
 }
 
@@ -52,9 +54,4 @@ export function getSyncMeta(): { note?: string; masterCounts?: Record<string, nu
   return { note: extra.note, masterCounts: extra.sync?.masterCounts };
 }
 
-export const DEFAULT_BINANCE_REF_URL =
-  "https://www.binance.com/activity/referral-entry/CPA?ref=yke3vhg.fed2xbu6CJZ";
-
-export function binanceUrl(): string {
-  return process.env.NEXT_PUBLIC_BINANCE_REF_URL || DEFAULT_BINANCE_REF_URL;
-}
+export { DEFAULT_BINANCE_REF_URL, binanceUrl } from "./binance";

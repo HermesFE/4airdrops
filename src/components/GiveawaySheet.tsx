@@ -5,6 +5,13 @@ import { useMemo, useState } from "react";
 import type { Giveaway } from "@/lib/types";
 import { displayPrize } from "@/lib/text";
 import { hasClearDeadline, isLongHorizon, sortDeadlineMs } from "@/lib/deadline";
+import {
+  displayCategory,
+  displayDeadline,
+  displayPlatform,
+  displayRegion,
+  sortByLabel,
+} from "@/lib/fieldLabels";
 import { DEFAULT_HORIZON_DAYS, HORIZON_CHOICES, STATUS_ONGOING, STATUS_UNKNOWN } from "@/lib/status";
 import { formatMsg, statusLabel, useI18n } from "@/i18n/I18nProvider";
 import { BinanceCta } from "./BinanceCta";
@@ -148,37 +155,50 @@ export function GiveawaySheet({
       <div className="sheet-wrap">
         <table className="sheet">
           <thead>
-            <tr>
+            <tr className="sheet-labels">
               <th className="row-num">{m.columns.n}</th>
-              <th className={platform !== "all" ? "is-filtered" : undefined}>
-                <div className="col-name">{m.columns.platform}</div>
+              <th className={platform !== "all" ? "is-filtered" : undefined}>{m.columns.platform}</th>
+              <th className={category !== "all" ? "is-filtered" : undefined}>{m.columns.category}</th>
+              <th className={q.trim() || sort === "title" ? "is-filtered col-title" : "col-title"}>
+                <button type="button" className="col-sort" onClick={() => setSort("title")}>
+                  {m.columns.title}
+                  {sort === "title" ? " ▾" : ""}
+                </button>
+              </th>
+              <th>{m.columns.prize}</th>
+              <th className={sort === "ending" ? "is-filtered" : undefined}>
+                <button type="button" className="col-sort" onClick={() => setSort("ending")}>
+                  {m.columns.deadline}
+                  {sort === "ending" ? " ▾" : ""}
+                </button>
+              </th>
+              <th className={region !== "all" ? "is-filtered" : undefined}>{m.columns.region}</th>
+              <th className={status !== "all" ? "is-filtered" : undefined}>{m.columns.status}</th>
+              <th className={risk !== "all" ? "is-filtered" : undefined}>{m.columns.risk}</th>
+            </tr>
+            <tr className="sheet-filters">
+              <th className="row-num" />
+              <th>
                 <select className="col-filter" value={platform} onChange={(e) => setPlatform(e.target.value)} aria-label={m.columns.platform}>
                   <option value="all">{m.filter.all}</option>
-                  {platforms.map((p) => (
+                  {sortByLabel(platforms, (p) => displayPlatform(p, locale) || p, locale).map((p) => (
                     <option key={p} value={p}>
-                      {p}
+                      {displayPlatform(p, locale) || p}
                     </option>
                   ))}
                 </select>
               </th>
-              <th className={category !== "all" ? "is-filtered" : undefined}>
-                <div className="col-name">{m.columns.category}</div>
+              <th>
                 <select className="col-filter" value={category} onChange={(e) => setCategory(e.target.value)} aria-label={m.columns.category}>
                   <option value="all">{m.filter.all}</option>
-                  {categories.map((c) => (
+                  {sortByLabel(categories, (c) => displayCategory(c, locale) || c, locale).map((c) => (
                     <option key={c} value={c}>
-                      {c}
+                      {displayCategory(c, locale) || c}
                     </option>
                   ))}
                 </select>
               </th>
-              <th className={q.trim() || sort === "title" ? "is-filtered col-title" : "col-title"}>
-                <div className="col-name">
-                  <button type="button" onClick={() => setSort("title")}>
-                    {m.columns.title}
-                    {sort === "title" ? " ▾" : ""}
-                  </button>
-                </div>
+              <th className="col-title">
                 <input
                   className="col-filter"
                   type="text"
@@ -188,31 +208,20 @@ export function GiveawaySheet({
                   aria-label={m.filter.search}
                 />
               </th>
+              <th />
+              <th />
               <th>
-                <div className="col-name">{m.columns.prize}</div>
-              </th>
-              <th className={sort === "ending" ? "is-filtered" : undefined}>
-                <div className="col-name">
-                  <button type="button" onClick={() => setSort("ending")}>
-                    {m.columns.deadline}
-                    {sort === "ending" ? " ▾" : ""}
-                  </button>
-                </div>
-              </th>
-              <th className={region !== "all" ? "is-filtered" : undefined}>
-                <div className="col-name">{m.columns.region}</div>
                 <select className="col-filter" value={region} onChange={(e) => setRegion(e.target.value)} aria-label={m.columns.region}>
                   <option value="all">{m.filter.all}</option>
                   <option value="__empty__">{m.filter.empty}</option>
-                  {regions.map((r) => (
+                  {sortByLabel(regions, (r) => displayRegion(r, locale) || r, locale).map((r) => (
                     <option key={r} value={r}>
-                      {r}
+                      {displayRegion(r, locale) || r}
                     </option>
                   ))}
                 </select>
               </th>
-              <th className={status !== "all" ? "is-filtered" : undefined}>
-                <div className="col-name">{m.columns.status}</div>
+              <th>
                 <select className="col-filter" value={status} onChange={(e) => setStatus(e.target.value)} aria-label={m.columns.status}>
                   <option value="all">{m.filter.all}</option>
                   {statuses.map((s) => (
@@ -222,8 +231,7 @@ export function GiveawaySheet({
                   ))}
                 </select>
               </th>
-              <th className={risk !== "all" ? "is-filtered" : undefined}>
-                <div className="col-name">{m.columns.risk}</div>
+              <th>
                 <select className="col-filter" value={risk} onChange={(e) => setRisk(e.target.value)} aria-label={m.columns.risk}>
                   <option value="all">{m.filter.all}</option>
                   <option value="yes">{m.filter.riskYes}</option>
@@ -243,16 +251,18 @@ export function GiveawaySheet({
               filtered.map((g, i) => (
                 <tr key={g.id}>
                   <td className="row-num">{i + 1}</td>
-                  <td className="nowrap">{g.platform || m.filter.dash}</td>
-                  <td className="nowrap">{g.category || m.filter.dash}</td>
+                  <td className="nowrap">{displayPlatform(g.platform, locale) || m.filter.dash}</td>
+                  <td className="nowrap">{displayCategory(g.category, locale) || m.filter.dash}</td>
                   <td className="clip" title={g.title}>
                     <Link href={`/g/${encodeURIComponent(g.id)}`}>{g.title || m.filter.untitled}</Link>
                   </td>
                   <td className="clip-sm" title={displayPrize(g)}>
                     {displayPrize(g) || m.filter.dash}
                   </td>
-                  <td className="nowrap">{g.deadlineBj || g.deadlineRaw || m.filter.dash}</td>
-                  <td className="nowrap">{g.region || m.filter.dash}</td>
+                  <td className="nowrap">
+                    {displayDeadline(g.deadlineBj || g.deadlineRaw, locale) || m.filter.dash}
+                  </td>
+                  <td className="nowrap">{displayRegion(g.region, locale) || m.filter.dash}</td>
                   <td className="nowrap">{statusLabel(m, g.status)}</td>
                   <td className={g.risk ? "danger nowrap" : "nowrap"} title={g.risk || ""}>
                     {g.risk ? m.filter.hasRisk : m.filter.noRisk}

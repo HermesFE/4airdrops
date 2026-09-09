@@ -1,6 +1,6 @@
 "use client";
 
-import { binanceUrl } from "@/lib/data";
+import { binanceUrl } from "@/lib/binance";
 import { useI18n } from "@/i18n/I18nProvider";
 
 export function SiteFooter() {
