@@ -64,6 +64,7 @@ const zh: Messages = {
     url: "活动页",
     source: "来源",
     firstSeen: "首次发现",
+    original: "原文",
     open: "打开活动页",
   },
   footer: {
@@ -137,6 +138,7 @@ const es: Messages = {
     url: "Página de la campaña",
     source: "Fuente",
     firstSeen: "Primera vez visto",
+    original: "Original",
     open: "Abrir campaña",
   },
   footer: {
@@ -210,6 +212,7 @@ const pt: Messages = {
     url: "Página da campanha",
     source: "Fonte",
     firstSeen: "Primeira vista",
+    original: "Original",
     open: "Abrir campanha",
   },
   footer: {
@@ -283,6 +286,7 @@ const ar: Messages = {
     url: "صفحة الحملة",
     source: "المصدر",
     firstSeen: "أول ظهور",
+    original: "النص الأصلي",
     open: "فتح الحملة",
   },
   footer: {
@@ -356,6 +360,7 @@ const id: Messages = {
     url: "Halaman kampanye",
     source: "Sumber",
     firstSeen: "Pertama dilihat",
+    original: "Teks asli",
     open: "Buka kampanye",
   },
   footer: {
@@ -429,6 +434,7 @@ const ru: Messages = {
     url: "Страница акции",
     source: "Источник",
     firstSeen: "Впервые замечено",
+    original: "Оригинал",
     open: "Открыть акцию",
   },
   footer: {
@@ -502,6 +508,7 @@ const ja: Messages = {
     url: "キャンペーンページ",
     source: "出典",
     firstSeen: "初回確認",
+    original: "原文",
     open: "キャンペーンを開く",
   },
   footer: {
@@ -575,6 +582,7 @@ const de: Messages = {
     url: "Kampagnenseite",
     source: "Quelle",
     firstSeen: "Zuerst gesehen",
+    original: "Original",
     open: "Kampagne öffnen",
   },
   footer: {
@@ -648,6 +656,7 @@ const fr: Messages = {
     url: "Page de la campagne",
     source: "Source",
     firstSeen: "Première vue",
+    original: "Original",
     open: "Ouvrir la campagne",
   },
   footer: {
@@ -721,6 +730,7 @@ const ko: Messages = {
     url: "캠페인 페이지",
     source: "출처",
     firstSeen: "최초 확인",
+    original: "원문",
     open: "캠페인 열기",
   },
   footer: {
@@ -794,6 +804,7 @@ const vi: Messages = {
     url: "Trang chiến dịch",
     source: "Nguồn",
     firstSeen: "Lần đầu thấy",
+    original: "Nguyên bản",
     open: "Mở chiến dịch",
   },
   footer: {
@@ -867,6 +878,7 @@ const tr: Messages = {
     url: "Kampanya sayfası",
     source: "Kaynak",
     firstSeen: "İlk görülme",
+    original: "Orijinal",
     open: "Kampanyayı aç",
   },
   footer: {
@@ -940,6 +952,7 @@ const hi: Messages = {
     url: "अभियान पृष्ठ",
     source: "स्रोत",
     firstSeen: "पहली बार देखा",
+    original: "मूल पाठ",
     open: "अभियान खोलें",
   },
   footer: {

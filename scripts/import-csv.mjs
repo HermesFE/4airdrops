@@ -11,9 +11,19 @@
  * Default: keep 活动状态 === 疑似进行中 (the "ongoing / unverified" set).
  * 状态不明 is ~thousands of rows — only include with --include-unknown.
  *
+ * English display fields (titleEn, prizeEn, prizeDetailEn, entryEn, riskEn):
+ *   Filled at ingest. Originals are kept. UI chrome is the 14-locale i18n
+ *   layer; we do NOT translate every row into 14 languages.
+ *   Latin/English source → copy through. Otherwise machine-translate to
+ *   English (Google gtx unofficial endpoint, MyMemory fallback). See
+ *   scripts/english-display.mjs. Previous giveaways.json *En values are
+ *   reused when id + source text are unchanged.
+ *
  * Usage:
  *   npm run import-csv -- /path/to/Giveaway主表.csv
  *   npm run import-csv -- ./export.json --include-unknown --max 1200
+ *   npm run import-csv -- data/giveaways.json --skip-en
+ *   npm run import-csv -- data/giveaways.json --force-en
  *
  * Writes data/giveaways.json (compact). Cloudflare Pages build: npm run build.
  */
@@ -21,6 +31,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { EN_FIELDS, emptyEnStats, fillEnglishFields, reuseUnchangedEn } from "./english-display.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..");
@@ -50,10 +61,20 @@ const COL = {
 };
 
 function parseArgs(argv) {
-  const args = { file: "", includeUnknown: false, includeEnded: false, max: 0, out: "" };
+  const args = {
+    file: "",
+    includeUnknown: false,
+    includeEnded: false,
+    max: 0,
+    out: "",
+    skipEn: false,
+    forceEn: false,
+  };
   for (const a of argv) {
     if (a === "--include-unknown") args.includeUnknown = true;
     else if (a === "--include-ended") args.includeEnded = true;
+    else if (a === "--skip-en") args.skipEn = true;
+    else if (a === "--force-en") args.forceEn = true;
     else if (a.startsWith("--max=")) args.max = Number(a.slice(6)) || 0;
     else if (a.startsWith("--out=")) args.out = a.slice(6);
     else if (a === "--max") args._maxNext = true;
@@ -134,7 +155,7 @@ function rowToItem(obj) {
   const id = pick(obj, COL.id);
   const title = pick(obj, COL.title);
   if (!id && !title) return null;
-  return {
+  const item = {
     id: id || `row-${Math.random().toString(16).slice(2)}`,
     title,
     platform: pick(obj, COL.platform),
@@ -153,6 +174,22 @@ function rowToItem(obj) {
     firstSeen: pick(obj, COL.firstSeen) || undefined,
     startedAt: pick(obj, COL.startedAt) || undefined,
   };
+  for (const [, dest] of EN_FIELDS) {
+    const v = pick(obj, [dest]);
+    if (v) item[dest] = v;
+  }
+  return item;
+}
+
+function loadPrevious(outFile) {
+  try {
+    if (!fs.existsSync(outFile)) return new Map();
+    const data = JSON.parse(fs.readFileSync(outFile, "utf8"));
+    const list = Array.isArray(data) ? data : data.items || [];
+    return new Map(list.filter((i) => i && i.id).map((i) => [i.id, i]));
+  } catch {
+    return new Map();
+  }
 }
 
 function loadItems(file) {
@@ -160,18 +197,33 @@ function loadItems(file) {
   if (file.endsWith(".json")) {
     const data = JSON.parse(raw);
     const list = Array.isArray(data) ? data : data.items || [];
-    return list.map((row) => rowToItem(row)).filter(Boolean);
+    return { items: list.map((row) => rowToItem(row)).filter(Boolean), meta: data };
   }
   const rows = parseCsv(raw);
-  if (!rows.length) return [];
+  if (!rows.length) return { items: [], meta: null };
   const headers = rows[0].map((h) => h.trim());
-  return rows.slice(1).map((cells) => {
-    const obj = {};
-    headers.forEach((h, i) => {
-      obj[h] = cells[i] ?? "";
-    });
-    return rowToItem(obj);
-  }).filter(Boolean);
+  return {
+    items: rows
+      .slice(1)
+      .map((cells) => {
+        const obj = {};
+        headers.forEach((h, i) => {
+          obj[h] = cells[i] ?? "";
+        });
+        return rowToItem(obj);
+      })
+      .filter(Boolean),
+    meta: null,
+  };
+}
+
+function compactItem(item) {
+  const out = {};
+  for (const [k, v] of Object.entries(item)) {
+    if (v == null || v === "") continue;
+    out[k] = v;
+  }
+  return out;
 }
 
 function countByStatus(items) {
@@ -185,7 +237,9 @@ function countByStatus(items) {
 
 const args = parseArgs(process.argv.slice(2));
 if (!args.file) {
-  console.error("Usage: npm run import-csv -- /path/to/Giveaway主表.csv [--include-unknown] [--max N]");
+  console.error(
+    "Usage: npm run import-csv -- /path/to/Giveaway主表.csv [--include-unknown] [--max N] [--skip-en|--force-en]",
+  );
   process.exit(1);
 }
 const abs = path.resolve(args.file);
@@ -194,8 +248,12 @@ if (!fs.existsSync(abs)) {
   process.exit(1);
 }
 
-const all = loadItems(abs);
-const masterCounts = countByStatus(all);
+const { items: loaded, meta: inputMeta } = loadItems(abs);
+const all = loaded;
+const counted = countByStatus(all);
+const priorCounts = inputMeta?.sync?.masterCounts;
+const masterCounts =
+  priorCounts && Object.keys(priorCounts).length > Object.keys(counted).length ? priorCounts : counted;
 let items = all.filter((i) => {
   if (i.status === STATUS_ONGOING) return true;
   if (args.includeUnknown && i.status === STATUS_UNKNOWN) return true;
@@ -204,24 +262,49 @@ let items = all.filter((i) => {
 });
 if (args.max > 0) items = items.slice(0, args.max);
 
+const OUT = args.out ? path.resolve(args.out) : DEFAULT_OUT;
+const prevById = loadPrevious(OUT);
+const enStats = emptyEnStats();
+if (!args.skipEn) {
+  const cache = new Map();
+  const filled = [];
+  for (let i = 0; i < items.length; i++) {
+    const merged = reuseUnchangedEn(items[i], prevById.get(items[i].id));
+    filled.push(await fillEnglishFields(merged, { cache, stats: enStats, force: args.forceEn }));
+    if ((i + 1) % 100 === 0) {
+      console.log(`English display ${i + 1}/${items.length} …`, enStats);
+    }
+  }
+  items = filled.map(compactItem);
+} else {
+  items = items.map(compactItem);
+}
+
 const payload = {
   updatedAt: new Date().toISOString().slice(0, 10),
   count: items.length,
   items,
   note: args.includeUnknown
     ? "Imported with --include-unknown. Prefer default 疑似进行中-only for Cloudflare Pages size."
-    : "Daily sync: 活动状态=疑似进行中. UI label: 进行中（待核验）.",
+    : "Daily sync: 活动状态=疑似进行中. UI label: Active (unverified) / 进行中（待核验）. Row content: original + titleEn/prizeEn/entryEn.",
   sync: {
-    source: path.basename(abs),
+    source: inputMeta?.sync?.source || path.basename(abs),
     defaultStatus: STATUS_ONGOING,
     includeUnknown: args.includeUnknown,
     masterCounts,
     command: "npm run import-csv -- /path/to/Giveaway主表.csv",
+    enDisplay: {
+      method:
+        "Latin/English copied through. Else Google translate.googleapis.com/translate_a/single?client=gtx (no key), MyMemory fallback. See scripts/english-display.mjs.",
+      skipEn: args.skipEn,
+      forceEn: args.forceEn,
+      ...enStats,
+    },
   },
 };
 
-const OUT = args.out ? path.resolve(args.out) : DEFAULT_OUT;
 fs.mkdirSync(path.dirname(OUT), { recursive: true });
 fs.writeFileSync(OUT, JSON.stringify(payload));
 console.log(`Wrote ${items.length} / ${all.length} rows -> ${path.relative(ROOT, OUT)}`);
 console.log("Master status counts:", masterCounts);
+console.log("English display:", args.skipEn ? "skipped" : enStats);
