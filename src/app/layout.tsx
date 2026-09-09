@@ -5,13 +5,13 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 
 export const metadata: Metadata = {
-  title: "4Airdrops — Giveaway / 空投活动目录",
-  description: "多平台 Giveaway 与空投活动聚合。含 Binance 联盟推广。",
+  title: "4Airdrops — Giveaway / airdrop directory",
+  description: "Public giveaway and airdrop directory. Includes Binance affiliate links.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="zh-CN">
+    <html lang="en">
       <body>
         <I18nProvider>
           <SiteHeader />

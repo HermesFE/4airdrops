@@ -28,7 +28,7 @@ export function GiveawaySheet({
   updatedAt: string;
   masterOngoing?: number;
 }) {
-  const { m } = useI18n();
+  const { m, locale } = useI18n();
   const statuses = useMemo(() => statusesOf(items), [items]);
   const [q, setQ] = useState("");
   const [platform, setPlatform] = useState("all");
@@ -83,9 +83,9 @@ export function GiveawaySheet({
       return true;
     });
     if (sort === "ending") list = [...list].sort((a, b) => sortDeadlineMs(a) - sortDeadlineMs(b));
-    if (sort === "title") list = [...list].sort((a, b) => (a.title || "").localeCompare(b.title || "", "zh"));
+    if (sort === "title") list = [...list].sort((a, b) => (a.title || "").localeCompare(b.title || "", locale));
     return list;
-  }, [items, q, platform, category, region, status, risk, sort, hideZombies, onlyDated, includeUnknown, horizonDays]);
+  }, [items, q, platform, category, region, status, risk, sort, hideZombies, onlyDated, includeUnknown, horizonDays, locale]);
 
   function reset() {
     setQ("");

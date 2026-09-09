@@ -1,7 +1,9 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { catalogs, defaultLocale, type Locale, type Messages } from "./messages";
+import { catalogs } from "./catalogs";
+import type { Messages } from "./en";
+import { applyDocumentLocale, defaultLocale, isLocale, type Locale } from "./locales";
 
 const STORAGE_KEY = "4airdrops.locale";
 
@@ -28,22 +30,18 @@ export function I18nProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const query = new URLSearchParams(window.location.search).get("lang");
     const saved = window.localStorage.getItem(STORAGE_KEY);
-    const next =
-      query === "en" || query === "zh" ? query : saved === "en" || saved === "zh" ? saved : defaultLocale;
+    const next = isLocale(query) ? query : isLocale(saved) ? saved : defaultLocale;
     setLocaleState(next);
-    document.documentElement.lang = next === "en" ? "en" : "zh-CN";
+    applyDocumentLocale(next);
   }, []);
 
   const setLocale = useCallback((next: Locale) => {
     setLocaleState(next);
     window.localStorage.setItem(STORAGE_KEY, next);
-    document.documentElement.lang = next === "en" ? "en" : "zh-CN";
+    applyDocumentLocale(next);
   }, []);
 
-  const value = useMemo(
-    () => ({ locale, setLocale, m: catalogs[locale] }),
-    [locale, setLocale],
-  );
+  const value = useMemo(() => ({ locale, setLocale, m: catalogs[locale] }), [locale, setLocale]);
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }
