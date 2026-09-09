@@ -1,20 +1,355 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #070b12;
-  --card: #101826;
-  --line: #1e2a3c;
-  --text: #e8eef7;
-  --muted: #8b9bb4;
-  --accent: #f0b90b;
-  --accent2: #3b82f6;
-  --danger: #f87171;
+  --bg: #f7f7f4;
+  --paper: #ffffff;
+  --ink: #111111;
+  --muted: #555555;
+  --line: #b4b4b4;
+  --line-soft: #d0d0d0;
+  --header: #e4e4e0;
+  --bar: #ecece8;
+  --zebra: #f3f3ee;
+  --hover: #fff8c5;
+  --link: #0000cc;
+  --link-visited: #551a8b;
+  --danger: #8b0000;
+  --note-bg: #ffffee;
+  --note-line: #cccc99;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 13px;
 }
 
 body {
-  background: radial-gradient(1200px 600px at 10% -10%, #132038 0%, var(--bg) 55%);
-  color: var(--text);
+  margin: 0;
   min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: Tahoma, Verdana, Geneva, "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  line-height: 1.45;
 }
 
-a { color: inherit; }
+a {
+  color: var(--link);
+  text-decoration: underline;
+}
+
+a:visited {
+  color: var(--link-visited);
+}
+
+a:hover {
+  color: #cc0000;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 700;
+  color: #222;
+}
+
+h1 {
+  font-size: 1.35rem;
+  margin: 0 0 0.4rem;
+}
+
+h2 {
+  font-size: 1.1rem;
+  margin: 0 0 0.35rem;
+}
+
+.page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 10px 12px 28px;
+}
+
+.lede,
+.hint,
+.meta {
+  margin: 0 0 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.topbar {
+  background: var(--bar);
+  border-bottom: 1px solid #808080;
+}
+
+.topbar-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 6px 12px;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.sitename {
+  color: var(--ink);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.sitename:visited {
+  color: var(--ink);
+}
+
+.sitename:hover {
+  color: var(--link);
+}
+
+.sitename .tag {
+  margin-left: 6px;
+  font-weight: 400;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.nav a {
+  margin: 0 0.35rem;
+}
+
+.nav .sep {
+  color: #999;
+}
+
+.site-footer {
+  border-top: 1px solid #808080;
+  background: var(--bar);
+}
+
+.site-footer-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 10px 12px 16px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.site-footer h2 {
+  font-size: 12px;
+  color: #333;
+  margin-bottom: 4px;
+}
+
+.site-footer p {
+  margin: 0;
+}
+
+.note {
+  border: 1px solid var(--note-line);
+  background: var(--note-bg);
+  padding: 6px 8px;
+  margin: 0 0 10px;
+  font-size: 12px;
+}
+
+.note .k {
+  font-weight: 700;
+  color: #666600;
+  margin-right: 4px;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  padding: 6px 8px;
+  margin: 0 0 8px;
+  font-size: 12px;
+}
+
+.toolbar label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #333;
+  white-space: nowrap;
+}
+
+.toolbar input[type="text"],
+.toolbar select,
+.field input,
+.field select,
+.field textarea {
+  border: 1px inset #808080;
+  background: #fff;
+  color: #000;
+  padding: 2px 4px;
+  font: inherit;
+  border-radius: 0;
+}
+
+.toolbar input[type="text"] {
+  min-width: 16rem;
+}
+
+.toolbar select {
+  min-width: 8rem;
+}
+
+.count {
+  color: var(--muted);
+  font-size: 12px;
+  margin: 0 0 6px;
+}
+
+.sheet-wrap {
+  overflow-x: auto;
+  border: 1px solid #808080;
+  background: var(--paper);
+}
+
+.sheet {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  font-family: "Tahoma", "Verdana", "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+.sheet caption {
+  caption-side: top;
+  text-align: left;
+  padding: 4px 6px;
+  color: var(--muted);
+}
+
+.sheet th,
+.sheet td {
+  border: 1px solid var(--line-soft);
+  padding: 3px 6px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.sheet thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--header);
+  color: #333;
+  font-weight: 700;
+  white-space: nowrap;
+  border-color: var(--line);
+}
+
+.sheet .row-num {
+  width: 2.2rem;
+  text-align: right;
+  color: #666;
+  background: #efefe9;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.sheet tbody tr:nth-child(even) td:not(.row-num) {
+  background: var(--zebra);
+}
+
+.sheet tbody tr:hover td {
+  background: var(--hover);
+}
+
+.sheet .clip {
+  max-width: 22rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sheet .clip-sm {
+  max-width: 14rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sheet .nowrap {
+  white-space: nowrap;
+}
+
+.danger {
+  color: var(--danger);
+}
+
+.record {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--paper);
+  border: 1px solid #808080;
+}
+
+.record th,
+.record td {
+  border: 1px solid var(--line-soft);
+  padding: 5px 8px;
+  text-align: left;
+  vertical-align: top;
+  font-size: 13px;
+}
+
+.record th {
+  width: 6.5rem;
+  background: var(--header);
+  color: #333;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.btn {
+  display: inline-block;
+  border: 1px solid #808080;
+  background: #e8e8e8;
+  color: #000;
+  padding: 3px 10px;
+  font: inherit;
+  text-decoration: none;
+  border-radius: 0;
+}
+
+.btn:visited {
+  color: #000;
+}
+
+.btn:hover {
+  background: #f4f4f4;
+  color: #000;
+}
+
+.back {
+  font-size: 12px;
+}
+
+.stack > * + * {
+  margin-top: 10px;
+}
+
+.narrow {
+  max-width: 40rem;
+}
+
+.empty {
+  color: var(--muted);
+  padding: 10px;
+}
