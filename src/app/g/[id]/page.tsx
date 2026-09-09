@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BinanceCta } from "@/components/BinanceCta";
 import { getAllGiveaways, getGiveaway } from "@/lib/data";
+import { cleanDisplayText } from "@/lib/text";
 
 export function generateStaticParams() {
   return getAllGiveaways().map((g) => ({ id: g.id }));
@@ -48,12 +49,14 @@ export default async function GiveawayDetailPage({
           ) : null}
           <tr>
             <th>奖品</th>
-            <td style={{ whiteSpace: "pre-wrap" }}>{g.prize || g.prizeDetail || "—"}</td>
+            <td style={{ whiteSpace: "pre-wrap" }}>
+              {cleanDisplayText(g.prize) || cleanDisplayText(g.prizeDetail) || "—"}
+            </td>
           </tr>
-          {g.prizeDetail && g.prize ? (
+          {cleanDisplayText(g.prizeDetail) && cleanDisplayText(g.prize) ? (
             <tr>
               <th>奖品明细</th>
-              <td style={{ whiteSpace: "pre-wrap" }}>{g.prizeDetail}</td>
+              <td style={{ whiteSpace: "pre-wrap" }}>{cleanDisplayText(g.prizeDetail)}</td>
             </tr>
           ) : null}
           {(g.deadlineBj || g.deadlineRaw) && (
@@ -71,7 +74,7 @@ export default async function GiveawayDetailPage({
           {g.entry ? (
             <tr>
               <th>参与方式</th>
-              <td style={{ whiteSpace: "pre-wrap" }}>{g.entry}</td>
+              <td style={{ whiteSpace: "pre-wrap" }}>{cleanDisplayText(g.entry)}</td>
             </tr>
           ) : null}
           {g.risk ? (

@@ -199,6 +199,8 @@ h2 {
   padding: 2px 4px;
   font: inherit;
   border-radius: 0;
+  box-shadow: none;
+  outline: none;
 }
 
 .toolbar input[type="text"] {
@@ -237,7 +239,7 @@ h2 {
 
 .sheet th,
 .sheet td {
-  border: 1px solid var(--line-soft);
+  border: 1px solid #a8a8a8;
   padding: 3px 6px;
   text-align: left;
   vertical-align: top;

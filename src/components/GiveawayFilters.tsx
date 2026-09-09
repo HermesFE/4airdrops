@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { Giveaway } from "@/lib/types";
+import { displayPrize } from "@/lib/text";
 
 function parseSortKey(g: Giveaway): number {
   const s = g.deadlineBj || g.deadlineRaw || "";
@@ -41,7 +42,7 @@ export function GiveawayFilters({
       if (category !== "all" && g.category !== category) return false;
       if (status !== "all" && g.status !== status) return false;
       if (q.trim()) {
-        const blob = `${g.title} ${g.host} ${g.prize} ${g.platform} ${g.category} ${g.risk}`.toLowerCase();
+        const blob = `${g.title} ${g.host} ${displayPrize(g)} ${g.platform} ${g.category} ${g.risk}`.toLowerCase();
         if (!blob.includes(q.trim().toLowerCase())) return false;
       }
       return true;
@@ -138,8 +139,8 @@ export function GiveawayFilters({
                   <td className="clip" title={g.title}>
                     <Link href={`/g/${encodeURIComponent(g.id)}`}>{g.title || "（无标题）"}</Link>
                   </td>
-                  <td className="clip-sm" title={g.prize || g.prizeDetail || ""}>
-                    {g.prize || g.prizeDetail || "—"}
+                  <td className="clip-sm" title={displayPrize(g)}>
+                    {displayPrize(g) || "—"}
                   </td>
                   <td className="nowrap">{g.deadlineBj || g.deadlineRaw || "—"}</td>
                   <td className="nowrap">{g.region || "—"}</td>
