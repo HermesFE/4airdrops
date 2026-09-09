@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { Giveaway } from "@/lib/types";
-import { displayPrize } from "@/lib/text";
+import { contentSearchBlob, displayPrize, displayTitle, originalIfDifferent } from "@/lib/text";
 import { hasClearDeadline, isLongHorizon, sortDeadlineMs } from "@/lib/deadline";
 import {
   displayCategory,
@@ -84,13 +84,14 @@ export function GiveawaySheet({
       if (onlyDated && !hasClearDeadline(g)) return false;
       if (hideZombies && isLongHorizon(g, horizonDays)) return false;
       if (q.trim()) {
-        const blob = `${g.title} ${g.host} ${displayPrize(g)} ${g.platform} ${g.category}`.toLowerCase();
-        if (!blob.includes(q.trim().toLowerCase())) return false;
+        if (!contentSearchBlob(g).includes(q.trim().toLowerCase())) return false;
       }
       return true;
     });
     if (sort === "ending") list = [...list].sort((a, b) => sortDeadlineMs(a) - sortDeadlineMs(b));
-    if (sort === "title") list = [...list].sort((a, b) => (a.title || "").localeCompare(b.title || "", locale));
+    if (sort === "title") {
+      list = [...list].sort((a, b) => displayTitle(a).localeCompare(displayTitle(b), locale));
+    }
     return list;
   }, [items, q, platform, category, region, status, risk, sort, hideZombies, onlyDated, includeUnknown, horizonDays, locale]);
 
@@ -248,27 +249,33 @@ export function GiveawaySheet({
                 </td>
               </tr>
             ) : (
-              filtered.map((g, i) => (
+              filtered.map((g, i) => {
+                const title = displayTitle(g);
+                const prize = displayPrize(g);
+                const titleOrig = originalIfDifferent(title, g.title);
+                const prizeOrig = originalIfDifferent(prize, g.prize) || originalIfDifferent(prize, g.prizeDetail);
+                return (
                 <tr key={g.id}>
                   <td className="row-num">{i + 1}</td>
                   <td className="nowrap">{displayPlatform(g.platform, locale) || m.filter.dash}</td>
                   <td className="nowrap">{displayCategory(g.category, locale) || m.filter.dash}</td>
-                  <td className="clip" title={g.title}>
-                    <Link href={`/g/${encodeURIComponent(g.id)}`}>{g.title || m.filter.untitled}</Link>
+                  <td className="clip" title={titleOrig || title}>
+                    <Link href={`/g/${encodeURIComponent(g.id)}`}>{title || m.filter.untitled}</Link>
                   </td>
-                  <td className="clip-sm" title={displayPrize(g)}>
-                    {displayPrize(g) || m.filter.dash}
+                  <td className="clip-sm" title={prizeOrig || prize}>
+                    {prize || m.filter.dash}
                   </td>
                   <td className="nowrap">
                     {displayDeadline(g.deadlineBj || g.deadlineRaw, locale) || m.filter.dash}
                   </td>
                   <td className="nowrap">{displayRegion(g.region, locale) || m.filter.dash}</td>
                   <td className="nowrap">{statusLabel(m, g.status)}</td>
-                  <td className={g.risk ? "danger nowrap" : "nowrap"} title={g.risk || ""}>
+                  <td className={g.risk ? "danger nowrap" : "nowrap"} title={g.riskEn || g.risk || ""}>
                     {g.risk ? m.filter.hasRisk : m.filter.noRisk}
                   </td>
                 </tr>
-              ))
+                );
+              })
             )}
           </tbody>
         </table>

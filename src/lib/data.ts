@@ -8,12 +8,19 @@ const data = raw as GiveawayFile;
 function sanitizeGiveaway(g: Giveaway): Giveaway {
   const prize = cleanDisplayText(g.prize) || undefined;
   const prizeDetail = cleanDisplayText(g.prizeDetail) || undefined;
+  const prizeEn = cleanDisplayText(g.prizeEn) || undefined;
+  const prizeDetailEn = cleanDisplayText(g.prizeDetailEn) || undefined;
   return {
     ...g,
+    titleEn: cleanDisplayText(g.titleEn) || undefined,
     prize,
+    prizeEn,
     prizeDetail: prizeDetail && prizeDetail !== prize ? prizeDetail : undefined,
+    prizeDetailEn: prizeDetailEn && prizeDetailEn !== prizeEn ? prizeDetailEn : prizeDetailEn,
     entry: cleanDisplayText(g.entry) || undefined,
+    entryEn: cleanDisplayText(g.entryEn) || undefined,
     risk: cleanDisplayText(g.risk) || undefined,
+    riskEn: cleanDisplayText(g.riskEn) || undefined,
     status: statusCode(g.status) || undefined,
   };
 }

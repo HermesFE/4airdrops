@@ -5,16 +5,50 @@ import type { Giveaway } from "@/lib/types";
 import { BinanceCta } from "./BinanceCta";
 import { displayCategory, displayDeadline, displayPlatform, displayRegion } from "@/lib/fieldLabels";
 import { statusLabel, useI18n } from "@/i18n/I18nProvider";
+import {
+  cleanDisplayText,
+  displayEntry,
+  displayPrize,
+  displayRisk,
+  displayTitle,
+  originalIfDifferent,
+} from "@/lib/text";
+
+function originalRows(g: Giveaway, m: ReturnType<typeof useI18n>["m"]) {
+  const title = displayTitle(g);
+  const prize = displayPrize(g);
+  const prizeDetail = g.prizeDetailEn || g.prizeDetail || "";
+  const entry = displayEntry(g);
+  const risk = displayRisk(g);
+  const rows: { label: string; text: string }[] = [];
+  const titleOrig = originalIfDifferent(title, g.title);
+  if (titleOrig) rows.push({ label: m.columns.title, text: titleOrig });
+  const prizeOrig = originalIfDifferent(prize, g.prize);
+  if (prizeOrig) rows.push({ label: m.detail.prize, text: prizeOrig });
+  const detailOrig = originalIfDifferent(cleanDisplayText(prizeDetail), g.prizeDetail);
+  if (detailOrig && detailOrig !== prizeOrig) rows.push({ label: m.detail.prizeDetail, text: detailOrig });
+  const entryOrig = originalIfDifferent(entry, g.entry);
+  if (entryOrig) rows.push({ label: m.detail.entry, text: entryOrig });
+  const riskOrig = originalIfDifferent(risk, g.risk);
+  if (riskOrig) rows.push({ label: m.detail.risk, text: riskOrig });
+  return rows;
+}
 
 export function GiveawayRecord({ g }: { g: Giveaway }) {
   const { m, locale } = useI18n();
   const outbound = g.url || g.sourceUrl;
+  const title = displayTitle(g);
+  const prize = displayPrize(g);
+  const prizeDetailShown = cleanDisplayText(g.prizeDetailEn) || cleanDisplayText(g.prizeDetail);
+  const entry = displayEntry(g);
+  const risk = displayRisk(g);
+  const originals = originalRows(g, m);
   return (
     <div className="stack">
       <p className="back">
         <Link href="/">{m.detail.back}</Link>
       </p>
-      <h1>{g.title}</h1>
+      <h1 title={originalIfDifferent(title, g.title) || undefined}>{title}</h1>
       <table className="record">
         <tbody>
           <tr>
@@ -41,12 +75,14 @@ export function GiveawayRecord({ g }: { g: Giveaway }) {
           ) : null}
           <tr>
             <th>{m.detail.prize}</th>
-            <td style={{ whiteSpace: "pre-wrap" }}>{g.prize || g.prizeDetail || m.filter.dash}</td>
+            <td style={{ whiteSpace: "pre-wrap" }} title={originalIfDifferent(prize, g.prize) || undefined}>
+              {prize || m.filter.dash}
+            </td>
           </tr>
-          {g.prizeDetail && g.prize && g.prizeDetail !== g.prize ? (
+          {prizeDetailShown && prize && prizeDetailShown !== prize ? (
             <tr>
               <th>{m.detail.prizeDetail}</th>
-              <td style={{ whiteSpace: "pre-wrap" }}>{g.prizeDetail}</td>
+              <td style={{ whiteSpace: "pre-wrap" }}>{prizeDetailShown}</td>
             </tr>
           ) : null}
           {(g.deadlineBj || g.deadlineRaw) && (
@@ -67,16 +103,20 @@ export function GiveawayRecord({ g }: { g: Giveaway }) {
               <td>{displayRegion(g.region, locale)}</td>
             </tr>
           ) : null}
-          {g.entry ? (
+          {entry ? (
             <tr>
               <th>{m.detail.entry}</th>
-              <td style={{ whiteSpace: "pre-wrap" }}>{g.entry}</td>
+              <td style={{ whiteSpace: "pre-wrap" }} title={originalIfDifferent(entry, g.entry) || undefined}>
+                {entry}
+              </td>
             </tr>
           ) : null}
-          {g.risk ? (
+          {risk ? (
             <tr>
               <th>{m.detail.risk}</th>
-              <td className="danger">{g.risk}</td>
+              <td className="danger" title={originalIfDifferent(risk, g.risk) || undefined}>
+                {risk}
+              </td>
             </tr>
           ) : null}
           {outbound ? (
@@ -101,6 +141,21 @@ export function GiveawayRecord({ g }: { g: Giveaway }) {
           ) : null}
         </tbody>
       </table>
+      {originals.length ? (
+        <details className="original-src">
+          <summary>{m.detail.original}</summary>
+          <table className="record">
+            <tbody>
+              {originals.map((row) => (
+                <tr key={row.label}>
+                  <th>{row.label}</th>
+                  <td style={{ whiteSpace: "pre-wrap" }}>{row.text}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </details>
+      ) : null}
       {outbound ? (
         <p>
           <a className="btn" href={outbound} target="_blank" rel="noopener noreferrer">

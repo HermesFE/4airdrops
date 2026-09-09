@@ -440,6 +440,20 @@ h2 {
   margin-top: 10px;
 }
 
+.original-src {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.original-src summary {
+  cursor: pointer;
+  user-select: none;
+}
+
+.original-src .record {
+  margin-top: 6px;
+}
+
 .narrow {
   max-width: 40rem;
 }

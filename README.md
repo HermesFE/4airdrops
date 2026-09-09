@@ -2,7 +2,9 @@
 
 Public giveaway / airdrop directory. Free table + Binance referral CTA.
 
-Default UI language is **English**. Chrome is translated for: `en`, `zh`, `es`, `pt`, `ar`, `id`, `ru`, `ja`, `de`, `fr`, `ko`, `vi`, `tr`, `hi` (lightweight catalogs; table data stays as stored). Preference is saved in `localStorage` (`4airdrops.locale`).
+Default UI language is **English**. Chrome is translated for: `en`, `zh`, `es`, `pt`, `ar`, `id`, `ru`, `ja`, `de`, `fr`, `ko`, `vi`, `tr`, `hi` (lightweight catalogs). Preference is saved in `localStorage` (`4airdrops.locale`).
+
+Row **content** is not translated into 14 languages. Each row keeps the scraped original (`title`, `prize`, `prizeDetail`, `entry`, `risk`) plus ingest-time English display fields (`titleEn`, `prizeEn`, `prizeDetailEn`, `entryEn`, `riskEn`). The sheet and detail view show the English display text when present, and expose the original via a cell `title` tooltip or a compact **Original / 原文** block on the detail page.
 
 ## Local run
 
@@ -30,6 +32,13 @@ npm run import-csv -- /path/to/Giveaway主表.csv
 # optional sample of unknown status (large; not for production)
 npm run import-csv -- /path/to/Giveaway主表.csv --include-unknown --max 1200
 ```
+
+English display fields are filled during this import (see `scripts/english-display.mjs`):
+
+- Already Latin/English → copied to `*En`.
+- Otherwise machine-translated to English with the unofficial Google `translate.googleapis.com/translate_a/single?client=gtx` endpoint (no API key), MyMemory as fallback.
+- Previous `data/giveaways.json` `*En` values are reused when `id` + source text are unchanged, so a daily run only translates new or edited non-Latin fields.
+- `--skip-en` writes originals only (offline emergency). `--force-en` re-translates everything.
 
 Then `npm run build` (Cloudflare Pages: `npm run build` → `out/`).
 

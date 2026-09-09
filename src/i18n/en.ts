@@ -76,6 +76,7 @@ export const en = {
     url: "Campaign page",
     source: "Source",
     firstSeen: "First seen",
+    original: "Original",
     open: "Open campaign page",
   },
   footer: {
