@@ -1,7 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BinanceCta } from "@/components/BinanceCta";
-import { getGiveaway } from "@/lib/data";
+import { getAllGiveaways, getGiveaway } from "@/lib/data";
+
+export function generateStaticParams() {
+  return getAllGiveaways().map((g) => ({ id: g.id }));
+}
 
 export default async function GiveawayDetailPage({
   params,

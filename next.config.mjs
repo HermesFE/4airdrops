@@ -3,6 +3,8 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 /** @type {import("next").NextConfig} */
 const nextConfig = {
+  output: "export",
+  images: { unoptimized: true },
   webpack: (config) => {
     config.resolve.alias = {
       ...(config.resolve.alias || {}),
