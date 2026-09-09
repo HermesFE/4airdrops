@@ -274,37 +274,37 @@ h2 {
 .sheet {
   table-layout: fixed;
   width: 100%;
-  min-width: 72rem;
+  min-width: 70rem;
   border-collapse: collapse;
   font-size: 12px;
 }
 
 .sheet col.col-n {
-  width: 2.4rem;
+  width: 3%;
 }
 .sheet col.col-platform {
   width: 8%;
 }
 .sheet col.col-category {
-  width: 7.5%;
+  width: 7%;
 }
 .sheet col.col-title {
-  width: 21%;
+  width: 20%;
 }
 .sheet col.col-prize {
-  width: 26%;
+  width: 32%;
 }
 .sheet col.col-deadline {
-  width: 9rem;
+  width: 9%;
 }
 .sheet col.col-region {
-  width: 8%;
+  width: 7%;
 }
 .sheet col.col-status {
-  width: 10.5rem;
+  width: 11%;
 }
 .sheet col.col-risk {
-  width: 3.4rem;
+  width: 3%;
 }
 
 .sheet th,
