@@ -286,31 +286,46 @@ h2 {
 }
 
 .sheet thead th {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  background: var(--header);
-  color: #222;
-  font-weight: 700;
   border-color: #8a94a3;
   box-shadow: inset 1px 1px 0 #fff;
   min-width: 6.2rem;
-  vertical-align: bottom;
 }
 
 .sheet thead th.col-title {
   min-width: 12rem;
 }
 
+.sheet thead tr.sheet-labels th {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  background: var(--header);
+  color: #222;
+  font-weight: 700;
+  white-space: nowrap;
+  vertical-align: middle;
+  padding: 4px 6px;
+}
+
+.sheet thead tr.sheet-filters th {
+  position: sticky;
+  top: 22px;
+  z-index: 2;
+  background: #e8eef5;
+  font-weight: 400;
+  padding: 2px;
+  vertical-align: middle;
+}
+
 .sheet thead th.is-filtered {
   background: #c5d6ea;
 }
 
-.col-name {
-  line-height: 1.2;
+.sheet thead tr.sheet-filters th.is-filtered {
+  background: #d5e4f5;
 }
 
-.col-name button {
+.col-sort {
   border: 0;
   background: none;
   padding: 0;
@@ -323,7 +338,7 @@ h2 {
 .col-filter {
   display: block;
   width: 100%;
-  margin-top: 3px;
+  margin-top: 0;
   min-width: 0;
   height: 20px;
   padding: 0 2px;

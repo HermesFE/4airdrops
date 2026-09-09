@@ -51,9 +51,9 @@ export const en = {
     dash: "—",
   },
   status: {
-    "疑似进行中": "Active (unverified)",
-    状态不明: "Unknown",
-    "已结束/过期": "Ended",
+    ongoing: "Active (unverified)",
+    unknown: "Unknown",
+    ended: "Ended",
   },
   about: {
     title: "About 4Airdrops",

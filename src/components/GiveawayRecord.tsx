@@ -3,10 +3,11 @@
 import Link from "next/link";
 import type { Giveaway } from "@/lib/types";
 import { BinanceCta } from "./BinanceCta";
+import { displayCategory, displayDeadline, displayPlatform, displayRegion } from "@/lib/fieldLabels";
 import { statusLabel, useI18n } from "@/i18n/I18nProvider";
 
 export function GiveawayRecord({ g }: { g: Giveaway }) {
-  const { m } = useI18n();
+  const { m, locale } = useI18n();
   const outbound = g.url || g.sourceUrl;
   return (
     <div className="stack">
@@ -18,12 +19,12 @@ export function GiveawayRecord({ g }: { g: Giveaway }) {
         <tbody>
           <tr>
             <th>{m.detail.platform}</th>
-            <td>{g.platform || m.filter.dash}</td>
+            <td>{displayPlatform(g.platform, locale) || m.filter.dash}</td>
           </tr>
           {g.category ? (
             <tr>
               <th>{m.detail.category}</th>
-              <td>{g.category}</td>
+              <td>{displayCategory(g.category, locale)}</td>
             </tr>
           ) : null}
           {g.status ? (
@@ -51,7 +52,7 @@ export function GiveawayRecord({ g }: { g: Giveaway }) {
           {(g.deadlineBj || g.deadlineRaw) && (
             <tr>
               <th>{m.detail.deadline}</th>
-              <td>{g.deadlineBj || g.deadlineRaw}</td>
+              <td>{displayDeadline(g.deadlineBj || g.deadlineRaw, locale)}</td>
             </tr>
           )}
           {g.firstSeen ? (
@@ -63,7 +64,7 @@ export function GiveawayRecord({ g }: { g: Giveaway }) {
           {g.region ? (
             <tr>
               <th>{m.detail.region}</th>
-              <td>{g.region}</td>
+              <td>{displayRegion(g.region, locale)}</td>
             </tr>
           ) : null}
           {g.entry ? (

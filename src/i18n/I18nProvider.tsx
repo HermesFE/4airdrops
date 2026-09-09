@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { catalogs } from "./catalogs";
 import type { Messages } from "./en";
 import { applyDocumentLocale, defaultLocale, isLocale, type Locale } from "./locales";
+import { statusCode } from "@/lib/fieldLabels";
 
 const STORAGE_KEY = "4airdrops.locale";
 
@@ -20,8 +21,9 @@ export function formatMsg(template: string, vars: Record<string, string | number
 }
 
 export function statusLabel(m: Messages, raw?: string): string {
-  if (!raw) return m.filter.dash;
-  return m.status[raw as keyof Messages["status"]] ?? raw;
+  const code = statusCode(raw);
+  if (!code) return m.filter.dash;
+  return m.status[code];
 }
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {

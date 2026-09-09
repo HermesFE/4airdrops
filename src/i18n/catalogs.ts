@@ -42,7 +42,7 @@ const zh: Messages = {
     riskNo: "无",
     dash: "—",
   },
-  status: { "疑似进行中": "进行中（待核验）", 状态不明: "状态不明", "已结束/过期": "已结束" },
+  status: { ongoing: "进行中（待核验）", unknown: "状态不明", ended: "已结束" },
   about: {
     title: "关于 4Airdrops",
     body: "把多平台 Giveaway / 抽奖 / 交易所活动收成一张表。状态由公开列表页推断，缺截止日时标为进行中（待核验），不构成投资建议。",
@@ -115,7 +115,7 @@ const es: Messages = {
     riskNo: "No",
     dash: "—",
   },
-  status: { "疑似进行中": "Activo (sin verificar)", 状态不明: "Desconocido", "已结束/过期": "Finalizado" },
+  status: { ongoing: "Activo (sin verificar)", unknown: "Desconocido", ended: "Finalizado" },
   about: {
     title: "Acerca de 4Airdrops",
     body: "Una sola tabla de sorteos y campañas de exchanges. El estado se infiere de listados públicos; sin plazo se marca activo (sin verificar). No es asesoramiento financiero.",
@@ -188,7 +188,7 @@ const pt: Messages = {
     riskNo: "Não",
     dash: "—",
   },
-  status: { "疑似进行中": "Ativo (não verificado)", 状态不明: "Desconhecido", "已结束/过期": "Encerrado" },
+  status: { ongoing: "Ativo (não verificado)", unknown: "Desconhecido", ended: "Encerrado" },
   about: {
     title: "Sobre o 4Airdrops",
     body: "Uma tabela de sorteios e campanhas de exchanges. O estado vem de listas públicas; sem prazo fica ativo (não verificado). Não é aconselhamento financeiro.",
@@ -261,7 +261,7 @@ const ar: Messages = {
     riskNo: "لا",
     dash: "—",
   },
-  status: { "疑似进行中": "نشط (غير متحقَّق)", 状态不明: "غير معروف", "已结束/过期": "انتهى" },
+  status: { ongoing: "نشط (غير متحقَّق)", unknown: "غير معروف", ended: "انتهى" },
   about: {
     title: "حول 4Airdrops",
     body: "جدول واحد للسحوبات وحملات المنصات. تُستنتج الحالة من القوائم العامة؛ بلا موعد تُوسم نشط (غير متحقَّق). ليست نصيحة استثمارية.",
@@ -334,7 +334,7 @@ const id: Messages = {
     riskNo: "Tidak",
     dash: "—",
   },
-  status: { "疑似进行中": "Aktif (belum diverifikasi)", 状态不明: "Tidak jelas", "已结束/过期": "Selesai" },
+  status: { ongoing: "Aktif (belum diverifikasi)", unknown: "Tidak jelas", ended: "Selesai" },
   about: {
     title: "Tentang 4Airdrops",
     body: "Satu tabel giveaway dan kampanye bursa. Status dari daftar publik; tanpa tenggat ditandai aktif (belum diverifikasi). Bukan saran investasi.",
@@ -407,7 +407,7 @@ const ru: Messages = {
     riskNo: "Нет",
     dash: "—",
   },
-  status: { "疑似进行中": "Активно (не проверено)", 状态不明: "Неизвестно", "已结束/过期": "Завершено" },
+  status: { ongoing: "Активно (не проверено)", unknown: "Неизвестно", ended: "Завершено" },
   about: {
     title: "О 4Airdrops",
     body: "Одна таблица розыгрышей и биржевых акций. Статус берётся из публичных списков; без срока — активно (не проверено). Это не инвестсовет.",
@@ -480,7 +480,7 @@ const ja: Messages = {
     riskNo: "なし",
     dash: "—",
   },
-  status: { "疑似进行中": "進行中（未検証）", 状态不明: "不明", "已结束/过期": "終了" },
+  status: { ongoing: "進行中（未検証）", unknown: "不明", ended: "終了" },
   about: {
     title: "4Airdrops について",
     body: "公開ギブアウェイと取引所キャンペーンを1つの表にまとめています。状態は公開リストから推定し、締切不明は進行中（未検証）です。投資助言ではありません。",
@@ -553,7 +553,7 @@ const de: Messages = {
     riskNo: "Nein",
     dash: "—",
   },
-  status: { "疑似进行中": "Aktiv (ungeprüft)", 状态不明: "Unbekannt", "已结束/过期": "Beendet" },
+  status: { ongoing: "Aktiv (ungeprüft)", unknown: "Unbekannt", ended: "Beendet" },
   about: {
     title: "Über 4Airdrops",
     body: "Eine Tabelle öffentlicher Giveaways und Börsenkampagnen. Status aus Listen-Scrapes; ohne Frist = aktiv (ungeprüft). Keine Anlageberatung.",
@@ -626,7 +626,7 @@ const fr: Messages = {
     riskNo: "Non",
     dash: "—",
   },
-  status: { "疑似进行中": "Actif (non vérifié)", 状态不明: "Inconnu", "已结束/过期": "Terminé" },
+  status: { ongoing: "Actif (non vérifié)", unknown: "Inconnu", ended: "Terminé" },
   about: {
     title: "À propos de 4Airdrops",
     body: "Un tableau de giveaways et campagnes d’exchanges. Le statut vient des listes publiques ; sans échéance = actif (non vérifié). Pas un conseil financier.",
@@ -699,7 +699,7 @@ const ko: Messages = {
     riskNo: "없음",
     dash: "—",
   },
-  status: { "疑似进行中": "진행 중(미검증)", 状态不明: "불명", "已结束/过期": "종료" },
+  status: { ongoing: "진행 중(미검증)", unknown: "불명", ended: "종료" },
   about: {
     title: "4Airdrops 소개",
     body: "공개 기브어웨이와 거래소 캠페인을 한 표로 모았습니다. 상태는 공개 목록에서 추정하며, 마감이 없으면 진행 중(미검증)입니다. 투자 조언이 아닙니다.",
@@ -772,7 +772,7 @@ const vi: Messages = {
     riskNo: "Không",
     dash: "—",
   },
-  status: { "疑似进行中": "Đang diễn ra (chưa xác minh)", 状态不明: "Không rõ", "已结束/过期": "Đã kết thúc" },
+  status: { ongoing: "Đang diễn ra (chưa xác minh)", unknown: "Không rõ", ended: "Đã kết thúc" },
   about: {
     title: "Về 4Airdrops",
     body: "Một bảng giveaway và chiến dịch sàn. Trạng thái lấy từ danh sách công khai; không hạn thì ghi đang diễn ra (chưa xác minh). Không phải lời khuyên đầu tư.",
@@ -845,7 +845,7 @@ const tr: Messages = {
     riskNo: "Yok",
     dash: "—",
   },
-  status: { "疑似进行中": "Aktif (doğrulanmamış)", 状态不明: "Bilinmiyor", "已结束/过期": "Bitti" },
+  status: { ongoing: "Aktif (doğrulanmamış)", unknown: "Bilinmiyor", ended: "Bitti" },
   about: {
     title: "4Airdrops hakkında",
     body: "Çekilişler ve borsa kampanyaları tek tabloda. Durum herkese açık listelerden çıkarılır; tarih yoksa aktif (doğrulanmamış). Yatırım tavsiyesi değildir.",
@@ -918,7 +918,7 @@ const hi: Messages = {
     riskNo: "नहीं",
     dash: "—",
   },
-  status: { "疑似进行中": "सक्रिय (असत्यापित)", 状态不明: "अज्ञात", "已结束/过期": "समाप्त" },
+  status: { ongoing: "सक्रिय (असत्यापित)", unknown: "अज्ञात", ended: "समाप्त" },
   about: {
     title: "4Airdrops के बारे में",
     body: "सार्वजनिक गिवअवे और एक्सचेंज अभियानों की एक तालिका। स्थिति सार्वजनिक सूचियों से अनुमानित है; समय-सीमा न हो तो सक्रिय (असत्यापित)। यह निवेश सलाह नहीं है।",
