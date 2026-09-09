@@ -130,21 +130,27 @@ h2 {
   color: #888;
 }
 
-.lang-switch button {
-  border: 0;
-  background: none;
-  padding: 0;
+.lang-switch select {
+  border: 1px solid #7f7f7f;
+  background: #fff;
+  color: #000;
   font: inherit;
-  color: var(--link);
-  cursor: pointer;
-  text-decoration: underline;
+  font-size: 12px;
+  height: 20px;
+  border-radius: 0;
+  margin: 0 0.3rem;
 }
 
-.lang-switch button.on {
-  color: var(--ink);
-  font-weight: 700;
-  text-decoration: none;
-  cursor: default;
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .site-footer {

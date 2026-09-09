@@ -52,9 +52,9 @@ export function getSyncMeta(): { note?: string; masterCounts?: Record<string, nu
   return { note: extra.note, masterCounts: extra.sync?.masterCounts };
 }
 
+export const DEFAULT_BINANCE_REF_URL =
+  "https://www.binance.com/activity/referral-entry/CPA?ref=yke3vhg.fed2xbu6CJZ";
+
 export function binanceUrl(): string {
-  return (
-    process.env.NEXT_PUBLIC_BINANCE_REF_URL ||
-    "https://www.binance.com/activity/referral-entry/CPA?ref=PLACEHOLDER"
-  );
+  return process.env.NEXT_PUBLIC_BINANCE_REF_URL || DEFAULT_BINANCE_REF_URL;
 }
