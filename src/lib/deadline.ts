@@ -63,3 +63,56 @@ export function isLongHorizon(g: Giveaway, horizonDays: number, now = Date.now()
 export function sortDeadlineMs(g: Giveaway): number {
   return parseDeadlineMs(g) ?? Number.MAX_SAFE_INTEGER;
 }
+
+const DT_RE = /(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?/;
+const EST_RE = /约|相对推算|estimated|推算/i;
+const DATE_ONLY_RE = /日期级/;
+const ZH_DAY_RE = /(\d+)\s*天/;
+const ZH_MONTH_RE = /(\d+)\s*个?月/;
+
+export type FormattedDeadline = {
+  /** Short cell / primary display */
+  text: string;
+  /** Full raw strings for tooltip / detail */
+  title: string;
+};
+
+function rawDeadlineTitle(g: Giveaway): string {
+  const bj = (g.deadlineBj || "").trim();
+  const raw = (g.deadlineRaw || "").trim();
+  if (bj && raw && bj !== raw) return `${bj} · ${raw}`;
+  return bj || raw;
+}
+
+function relativeShort(raw: string): string {
+  const months = raw.match(MONTH_RE) || raw.match(ZH_MONTH_RE);
+  if (months) return `~${months[1]}mo`;
+  const days = raw.match(DAY_RE) || raw.match(ZH_DAY_RE);
+  if (days) return `~${days[1]}d`;
+  return "";
+}
+
+/** View-layer deadline: scannable YYYY-MM-DD[ HH:mm], or ~25d / ~2mo. */
+export function formatDeadline(g: Giveaway): FormattedDeadline {
+  const bj = (g.deadlineBj || "").trim();
+  const raw = (g.deadlineRaw || "").trim();
+  const title = rawDeadlineTitle(g);
+  const source = bj || raw;
+  if (!source) return { text: "", title: "" };
+
+  const estimated = EST_RE.test(source) || EST_RE.test(raw);
+  const dateOnlyNote = DATE_ONLY_RE.test(source);
+  const match = source.match(DT_RE);
+  if (match) {
+    const date = `${match[1]}-${match[2]}-${match[3]}`;
+    const time = match[4] && match[5] && !dateOnlyNote ? `${match[4]}:${match[5]}` : "";
+    let text = time ? `${date} ${time}` : date;
+    if (estimated) text = `~${text}`;
+    return { text, title };
+  }
+
+  const rel = relativeShort(raw) || relativeShort(bj);
+  if (rel) return { text: rel, title };
+
+  return { text: source.length > 16 ? `${source.slice(0, 15)}…` : source, title };
+}

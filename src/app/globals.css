@@ -66,7 +66,7 @@ h2 {
 }
 
 .page {
-  max-width: 1280px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 8px 8px 24px;
 }
@@ -272,9 +272,39 @@ h2 {
 }
 
 .sheet {
+  table-layout: fixed;
   width: 100%;
+  min-width: 72rem;
   border-collapse: collapse;
   font-size: 12px;
+}
+
+.sheet col.col-n {
+  width: 2.4rem;
+}
+.sheet col.col-platform {
+  width: 8%;
+}
+.sheet col.col-category {
+  width: 7.5%;
+}
+.sheet col.col-title {
+  width: 21%;
+}
+.sheet col.col-prize {
+  width: 26%;
+}
+.sheet col.col-deadline {
+  width: 9rem;
+}
+.sheet col.col-region {
+  width: 8%;
+}
+.sheet col.col-status {
+  width: 10.5rem;
+}
+.sheet col.col-risk {
+  width: 3.4rem;
 }
 
 .sheet th,
@@ -282,17 +312,10 @@ h2 {
   border: 1px solid var(--grid);
   padding: 2px 5px;
   text-align: left;
-  vertical-align: top;
-}
-
-.sheet thead th {
-  border-color: #8a94a3;
-  box-shadow: inset 1px 1px 0 #fff;
-  min-width: 6.2rem;
-}
-
-.sheet thead th.col-title {
-  min-width: 12rem;
+  vertical-align: middle;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .sheet thead tr.sheet-labels th {
@@ -344,18 +367,44 @@ h2 {
   padding: 0 2px;
 }
 
-.sheet .row-num {
-  width: 2.1rem;
-  min-width: 2.1rem;
+.sheet .row-num,
+.sheet td.col-n,
+.sheet th.col-n {
   text-align: right;
   color: #666;
   background: #ece9d8;
   font-variant-numeric: tabular-nums;
+}
+
+.sheet thead th.row-num,
+.sheet thead th.col-n {
+  background: #d6dce4;
+  text-align: center;
+}
+
+.sheet td.col-deadline,
+.sheet th.col-deadline {
+  font-variant-numeric: tabular-nums;
+}
+
+.sheet td.col-risk,
+.sheet th.col-risk {
+  text-align: center;
+}
+
+.sheet td.col-title a {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.sheet thead th.row-num {
-  background: #d6dce4;
+.deadline-raw {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--muted);
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .sheet tbody tr:nth-child(even) td:not(.row-num) {
@@ -366,21 +415,11 @@ h2 {
   background: var(--hover);
 }
 
-.sheet .clip {
-  max-width: 22rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.sheet .clip-sm {
-  max-width: 14rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
+.sheet .clip,
+.sheet .clip-sm,
 .sheet .nowrap {
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -461,4 +500,6 @@ h2 {
 .empty {
   color: var(--muted);
   padding: 10px;
+  white-space: normal;
+  text-overflow: clip;
 }

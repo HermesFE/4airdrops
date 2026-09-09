@@ -4,10 +4,9 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import type { Giveaway } from "@/lib/types";
 import { contentSearchBlob, displayPrize, displayTitle, originalIfDifferent } from "@/lib/text";
-import { hasClearDeadline, isLongHorizon, sortDeadlineMs } from "@/lib/deadline";
+import { formatDeadline, hasClearDeadline, isLongHorizon, sortDeadlineMs } from "@/lib/deadline";
 import {
   displayCategory,
-  displayDeadline,
   displayPlatform,
   displayRegion,
   sortByLabel,
@@ -155,31 +154,42 @@ export function GiveawaySheet({
       </div>
       <div className="sheet-wrap">
         <table className="sheet">
+          <colgroup>
+            <col className="col-n" />
+            <col className="col-platform" />
+            <col className="col-category" />
+            <col className="col-title" />
+            <col className="col-prize" />
+            <col className="col-deadline" />
+            <col className="col-region" />
+            <col className="col-status" />
+            <col className="col-risk" />
+          </colgroup>
           <thead>
             <tr className="sheet-labels">
-              <th className="row-num">{m.columns.n}</th>
-              <th className={platform !== "all" ? "is-filtered" : undefined}>{m.columns.platform}</th>
-              <th className={category !== "all" ? "is-filtered" : undefined}>{m.columns.category}</th>
+              <th className="row-num col-n">{m.columns.n}</th>
+              <th className={platform !== "all" ? "is-filtered col-platform" : "col-platform"}>{m.columns.platform}</th>
+              <th className={category !== "all" ? "is-filtered col-category" : "col-category"}>{m.columns.category}</th>
               <th className={q.trim() || sort === "title" ? "is-filtered col-title" : "col-title"}>
                 <button type="button" className="col-sort" onClick={() => setSort("title")}>
                   {m.columns.title}
                   {sort === "title" ? " ▾" : ""}
                 </button>
               </th>
-              <th>{m.columns.prize}</th>
-              <th className={sort === "ending" ? "is-filtered" : undefined}>
+              <th className="col-prize">{m.columns.prize}</th>
+              <th className={sort === "ending" ? "is-filtered col-deadline" : "col-deadline"}>
                 <button type="button" className="col-sort" onClick={() => setSort("ending")}>
                   {m.columns.deadline}
                   {sort === "ending" ? " ▾" : ""}
                 </button>
               </th>
-              <th className={region !== "all" ? "is-filtered" : undefined}>{m.columns.region}</th>
-              <th className={status !== "all" ? "is-filtered" : undefined}>{m.columns.status}</th>
-              <th className={risk !== "all" ? "is-filtered" : undefined}>{m.columns.risk}</th>
+              <th className={region !== "all" ? "is-filtered col-region" : "col-region"}>{m.columns.region}</th>
+              <th className={status !== "all" ? "is-filtered col-status" : "col-status"}>{m.columns.status}</th>
+              <th className={risk !== "all" ? "is-filtered col-risk" : "col-risk"}>{m.columns.risk}</th>
             </tr>
             <tr className="sheet-filters">
-              <th className="row-num" />
-              <th>
+              <th className="row-num col-n" />
+              <th className="col-platform">
                 <select className="col-filter" value={platform} onChange={(e) => setPlatform(e.target.value)} aria-label={m.columns.platform}>
                   <option value="all">{m.filter.all}</option>
                   {sortByLabel(platforms, (p) => displayPlatform(p, locale) || p, locale).map((p) => (
@@ -189,7 +199,7 @@ export function GiveawaySheet({
                   ))}
                 </select>
               </th>
-              <th>
+              <th className="col-category">
                 <select className="col-filter" value={category} onChange={(e) => setCategory(e.target.value)} aria-label={m.columns.category}>
                   <option value="all">{m.filter.all}</option>
                   {sortByLabel(categories, (c) => displayCategory(c, locale) || c, locale).map((c) => (
@@ -209,9 +219,9 @@ export function GiveawaySheet({
                   aria-label={m.filter.search}
                 />
               </th>
-              <th />
-              <th />
-              <th>
+              <th className="col-prize" />
+              <th className="col-deadline" />
+              <th className="col-region">
                 <select className="col-filter" value={region} onChange={(e) => setRegion(e.target.value)} aria-label={m.columns.region}>
                   <option value="all">{m.filter.all}</option>
                   <option value="__empty__">{m.filter.empty}</option>
@@ -222,7 +232,7 @@ export function GiveawaySheet({
                   ))}
                 </select>
               </th>
-              <th>
+              <th className="col-status">
                 <select className="col-filter" value={status} onChange={(e) => setStatus(e.target.value)} aria-label={m.columns.status}>
                   <option value="all">{m.filter.all}</option>
                   {statuses.map((s) => (
@@ -232,7 +242,7 @@ export function GiveawaySheet({
                   ))}
                 </select>
               </th>
-              <th>
+              <th className="col-risk">
                 <select className="col-filter" value={risk} onChange={(e) => setRisk(e.target.value)} aria-label={m.columns.risk}>
                   <option value="all">{m.filter.all}</option>
                   <option value="yes">{m.filter.riskYes}</option>
@@ -254,23 +264,28 @@ export function GiveawaySheet({
                 const prize = displayPrize(g);
                 const titleOrig = originalIfDifferent(title, g.title);
                 const prizeOrig = originalIfDifferent(prize, g.prize) || originalIfDifferent(prize, g.prizeDetail);
+                const deadline = formatDeadline(g);
+                const platformLabel = displayPlatform(g.platform, locale) || m.filter.dash;
+                const categoryLabel = displayCategory(g.category, locale) || m.filter.dash;
+                const regionLabel = displayRegion(g.region, locale) || m.filter.dash;
+                const statusText = statusLabel(m, g.status);
                 return (
                 <tr key={g.id}>
-                  <td className="row-num">{i + 1}</td>
-                  <td className="nowrap">{displayPlatform(g.platform, locale) || m.filter.dash}</td>
-                  <td className="nowrap">{displayCategory(g.category, locale) || m.filter.dash}</td>
-                  <td className="clip" title={titleOrig || title}>
+                  <td className="row-num col-n">{i + 1}</td>
+                  <td className="col-platform" title={platformLabel}>{platformLabel}</td>
+                  <td className="col-category" title={categoryLabel}>{categoryLabel}</td>
+                  <td className="col-title" title={titleOrig || title}>
                     <Link href={`/g/${encodeURIComponent(g.id)}`}>{title || m.filter.untitled}</Link>
                   </td>
-                  <td className="clip-sm" title={prizeOrig || prize}>
+                  <td className="col-prize" title={prizeOrig || prize}>
                     {prize || m.filter.dash}
                   </td>
-                  <td className="nowrap">
-                    {displayDeadline(g.deadlineBj || g.deadlineRaw, locale) || m.filter.dash}
+                  <td className="col-deadline" title={deadline.title || undefined}>
+                    {deadline.text || m.filter.dash}
                   </td>
-                  <td className="nowrap">{displayRegion(g.region, locale) || m.filter.dash}</td>
-                  <td className="nowrap">{statusLabel(m, g.status)}</td>
-                  <td className={g.risk ? "danger nowrap" : "nowrap"} title={g.riskEn || g.risk || ""}>
+                  <td className="col-region" title={regionLabel}>{regionLabel}</td>
+                  <td className="col-status" title={statusText}>{statusText}</td>
+                  <td className={g.risk ? "danger col-risk" : "col-risk"} title={g.riskEn || g.risk || ""}>
                     {g.risk ? m.filter.hasRisk : m.filter.noRisk}
                   </td>
                 </tr>
