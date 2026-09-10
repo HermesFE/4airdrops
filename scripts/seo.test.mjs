@@ -9,6 +9,7 @@ import {
   HTML_LANG,
   LOCALE_CODES,
   SITE_ORIGIN,
+  SSG_DETAIL_LOCALES,
   absoluteUrl,
   buildSitemapXml,
   giveawayRestPath,
@@ -48,16 +49,40 @@ test("locale paths and absolute URLs", () => {
   assert.equal(SITE_ORIGIN, "https://4airdrops.com");
 });
 
-test("sitemap lists every locale home, about, and detail plus xhtml hreflang", () => {
+test("SSG detail locales match src/i18n/locales.ts and stay a subset of UI locales", () => {
+  assert.deepEqual(SSG_DETAIL_LOCALES, ["en", "zh", "es", "ja", "ko", "pt"]);
+  for (const code of SSG_DETAIL_LOCALES) {
+    assert.ok(LOCALE_CODES.includes(code), code);
+  }
+  const src = fs.readFileSync(path.join(ROOT, "src/i18n/locales.ts"), "utf8");
+  const m = src.match(/export const detailLocales = \[([^\]]+)\]/);
+  assert.ok(m, "detailLocales export");
+  const fromSrc = m[1]
+    .split(",")
+    .map((s) => s.trim().replace(/^"|"$/g, ""))
+    .filter(Boolean);
+  assert.deepEqual(fromSrc, SSG_DETAIL_LOCALES);
+});
+
+test("sitemap lists every locale home/about; details only for SSG locales", () => {
   const xml = buildSitemapXml({ ids: ["ext-af7da96f88"], lastmod: "2026-09-10" });
   assert.match(xml, /xmlns:xhtml="http:\/\/www.w3.org\/1999\/xhtml"/);
   for (const code of LOCALE_CODES) {
     assert.match(xml, new RegExp(`<loc>${SITE_ORIGIN}/${code}</loc>`));
     assert.match(xml, new RegExp(`<loc>${SITE_ORIGIN}/${code}/about</loc>`));
-    assert.match(xml, new RegExp(`<loc>${SITE_ORIGIN}/${code}/g/ext-af7da96f88</loc>`));
     assert.match(xml, new RegExp(`hreflang="${HTML_LANG[code]}" href="${SITE_ORIGIN}/${code}"`));
   }
+  for (const code of SSG_DETAIL_LOCALES) {
+    assert.match(xml, new RegExp(`<loc>${SITE_ORIGIN}/${code}/g/ext-af7da96f88</loc>`));
+    assert.match(xml, new RegExp(`hreflang="${HTML_LANG[code]}" href="${SITE_ORIGIN}/${code}/g/ext-af7da96f88"`));
+  }
+  const chromeOnly = LOCALE_CODES.filter((code) => !SSG_DETAIL_LOCALES.includes(code));
+  for (const code of chromeOnly) {
+    assert.doesNotMatch(xml, new RegExp(`<loc>${SITE_ORIGIN}/${code}/g/ext-af7da96f88</loc>`));
+    assert.doesNotMatch(xml, new RegExp(`hreflang="${HTML_LANG[code]}" href="${SITE_ORIGIN}/${code}/g/`));
+  }
   assert.match(xml, /hreflang="x-default" href="https:\/\/4airdrops.com\/en"/);
+  assert.match(xml, /hreflang="x-default" href="https:\/\/4airdrops.com\/en\/g\/ext-af7da96f88"/);
   assert.match(xml, /<lastmod>2026-09-10<\/lastmod>/);
-  assert.equal(sitemapPaths(["a", "b"]).length, LOCALE_CODES.length * 4);
+  assert.equal(sitemapPaths(["a", "b"]).length, LOCALE_CODES.length * 2 + SSG_DETAIL_LOCALES.length * 2);
 });

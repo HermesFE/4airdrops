@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { catalogs } from "@/i18n/catalogs";
-import { defaultLocale, isLocale, localeCodes, localeMeta, type Locale } from "@/i18n/locales";
+import { defaultLocale, detailLocales, isLocale, localeCodes, localeMeta, type Locale } from "@/i18n/locales";
 import { absoluteUrl, languageAlternates, SITE_NAME, SITE_ORIGIN, type LocaleRestPath } from "@/i18n/paths";
 import { seoCopy } from "@/i18n/seoCopy";
 import { displayCategory, displayPlatform } from "@/lib/fieldLabels";
@@ -22,7 +22,13 @@ export function truncateMeta(text: string, max = 160): string {
   return `${t.slice(0, max - 1).trimEnd()}…`;
 }
 
-export function localeMetadata(locale: Locale, rest: LocaleRestPath, title: string, description: string): Metadata {
+export function localeMetadata(
+  locale: Locale,
+  rest: LocaleRestPath,
+  title: string,
+  description: string,
+  locales: readonly Locale[] = localeCodes,
+): Metadata {
   const url = absoluteUrl(locale, rest);
   const desc = truncateMeta(description);
   return {
@@ -32,7 +38,7 @@ export function localeMetadata(locale: Locale, rest: LocaleRestPath, title: stri
     robots: { index: true, follow: true },
     alternates: {
       canonical: url,
-      languages: languageAlternates(rest),
+      languages: languageAlternates(rest, locales),
     },
     openGraph: {
       type: rest.startsWith("/g/") ? "article" : "website",
@@ -41,7 +47,7 @@ export function localeMetadata(locale: Locale, rest: LocaleRestPath, title: stri
       title,
       description: desc,
       locale: localeMeta[locale].ogLocale,
-      alternateLocale: localeCodes.filter((code) => code !== locale).map((code) => localeMeta[code].ogLocale),
+      alternateLocale: locales.filter((code) => code !== locale).map((code) => localeMeta[code].ogLocale),
     },
     twitter: {
       card: "summary",
@@ -68,7 +74,7 @@ export function detailMetadata(locale: Locale, g: Giveaway): Metadata {
   const platform = displayPlatform(g.platform, locale) || g.platform;
   const category = displayCategory(g.category, locale) || g.category;
   const description = [prize, platform, category, m.home.tip].filter(Boolean).join(" · ");
-  return localeMetadata(locale, `/g/${encodeURIComponent(g.id)}`, `${title} — ${SITE_NAME}`, description);
+  return localeMetadata(locale, `/g/${encodeURIComponent(g.id)}`, `${title} — ${SITE_NAME}`, description, detailLocales);
 }
 
 export function rootAliasMetadata(): Metadata {

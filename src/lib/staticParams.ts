@@ -1,4 +1,4 @@
-import { localeCodes } from "@/i18n/locales";
+import { detailLocales, localeCodes } from "@/i18n/locales";
 import { getAllGiveaways } from "./data";
 
 export function localeStaticParams() {
@@ -7,7 +7,7 @@ export function localeStaticParams() {
 
 export function localeGiveawayStaticParams() {
   const items = getAllGiveaways();
-  return localeCodes.flatMap((locale) => items.map((g) => ({ locale, id: g.id })));
+  return detailLocales.flatMap((locale) => items.map((g) => ({ locale, id: g.id })));
 }
 
 export function giveawayStaticParams() {

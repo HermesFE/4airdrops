@@ -9,6 +9,17 @@ export const localeCodes = ["en", "zh", "es", "pt", "ar", "id", "ru", "ja", "de"
 export type Locale = (typeof localeCodes)[number];
 export const defaultLocale: Locale = "en";
 
+/**
+ * Locales that get pre-rendered giveaway detail pages (`/{locale}/g/{id}`).
+ * Cloudflare Pages caps a deployment at 20,000 files. Full 14-locale detail
+ * SSG (~945 × 14 HTML + RSC payloads + `_next` assets) exceeds that.
+ * Directory homes, about, and chrome stay on all `localeCodes`.
+ * Expand this list when the catalog shrinks or hosting no longer has the cap.
+ */
+export const detailLocales = ["en", "zh", "es", "ja", "ko", "pt"] as const satisfies readonly Locale[];
+
+export type DetailLocale = (typeof detailLocales)[number];
+
 export const LOCALE_STORAGE_KEY = "4airdrops.locale";
 
 export type LocaleMeta = {
@@ -38,6 +49,10 @@ export const localeMeta: Record<Locale, LocaleMeta> = {
 
 export function isLocale(value: string | null | undefined): value is Locale {
   return !!value && (localeCodes as readonly string[]).includes(value);
+}
+
+export function isDetailLocale(value: string | null | undefined): value is DetailLocale {
+  return !!value && (detailLocales as readonly string[]).includes(value);
 }
 
 export function applyDocumentLocale(locale: Locale) {

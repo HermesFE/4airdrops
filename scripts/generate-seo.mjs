@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { buildSitemapXml } from "./seo-urls.mjs";
+import { SSG_DETAIL_LOCALES, buildSitemapXml } from "./seo-urls.mjs";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATA = path.join(ROOT, "data", "giveaways.json");
@@ -13,4 +13,4 @@ const lastmod = typeof raw.updatedAt === "string" && /^\d{4}-\d{2}-\d{2}/.test(r
 
 fs.mkdirSync(path.dirname(OUT), { recursive: true });
 fs.writeFileSync(OUT, buildSitemapXml({ ids, lastmod }));
-console.log(`Wrote ${OUT} (${ids.length} giveaways × locales)`);
+console.log(`Wrote ${OUT} (${ids.length} giveaways × ${SSG_DETAIL_LOCALES.length} detail locales + homes/about)`);
