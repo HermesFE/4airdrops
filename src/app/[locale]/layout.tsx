@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { SiteChrome } from "@/components/SiteChrome";
 import { isLocale, localeMeta } from "@/i18n/locales";
-import { homeMetadata } from "@/lib/seo";
+import { brandViewport, homeMetadata } from "@/lib/seo";
 import { localeStaticParams } from "@/lib/staticParams";
 import "../globals.css";
 
@@ -9,6 +9,10 @@ export const dynamicParams = false;
 
 export function generateStaticParams() {
   return localeStaticParams();
+}
+
+export function generateViewport() {
+  return brandViewport();
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {

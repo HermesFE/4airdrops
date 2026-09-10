@@ -144,6 +144,7 @@ test("localeMetadata source wires icons, themeColor, OG/twitter, manifest", () =
   const src = fs.readFileSync(path.join(ROOT, "src/lib/seo.ts"), "utf8");
   assert.match(src, /THEME_COLOR = "#217346"/);
   assert.match(src, /themeColor: THEME_COLOR/);
+  assert.match(src, /export function brandViewport/);
   assert.match(src, /manifest: MANIFEST_PATH/);
   assert.match(src, /\/favicon\.ico/);
   assert.match(src, /\/icon\.svg/);
@@ -152,4 +153,8 @@ test("localeMetadata source wires icons, themeColor, OG/twitter, manifest", () =
   assert.match(src, /OG_IMAGE_PATH = "\/og\.png"/);
   const layout = fs.readFileSync(path.join(ROOT, "src/app/[locale]/layout.tsx"), "utf8");
   assert.match(layout, /homeMetadata/);
+  assert.match(layout, /generateViewport/);
+  assert.match(layout, /brandViewport/);
+  const root = fs.readFileSync(path.join(ROOT, "src/app/page.tsx"), "utf8");
+  assert.match(root, /brandViewport/);
 });

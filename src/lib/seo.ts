@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { catalogs } from "@/i18n/catalogs";
 import { defaultLocale, detailLocales, isLocale, localeCodes, localeMeta, type Locale } from "@/i18n/locales";
 import { absoluteUrl, languageAlternates, SITE_NAME, SITE_ORIGIN, type LocaleRestPath } from "@/i18n/paths";
@@ -24,9 +24,13 @@ const OG_IMAGE = {
   alt: SITE_NAME,
 } as const;
 
-function brandVisuals(): Pick<Metadata, "icons" | "manifest" | "themeColor"> {
+/** Next 15+ emits theme-color from the viewport export, not metadata. */
+export function brandViewport(): Viewport {
+  return { themeColor: THEME_COLOR };
+}
+
+function brandVisuals(): Pick<Metadata, "icons" | "manifest"> {
   return {
-    themeColor: THEME_COLOR,
     manifest: MANIFEST_PATH,
     icons: {
       icon: [
