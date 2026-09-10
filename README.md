@@ -2,7 +2,19 @@
 
 Public giveaway / airdrop directory. Free table + Binance referral CTA.
 
-Default UI language is **English**. Chrome is translated for: `en`, `zh`, `es`, `pt`, `ar`, `id`, `ru`, `ja`, `de`, `fr`, `ko`, `vi`, `tr`, `hi` (lightweight catalogs). Preference is saved in `localStorage` (`4airdrops.locale`).
+Default UI language is **English**. Chrome is translated for: `en`, `zh`, `es`, `pt`, `ar`, `id`, `ru`, `ja`, `de`, `fr`, `ko`, `vi`, `tr`, `hi` (lightweight catalogs).
+
+Each locale has its own URL so crawlers see translated chrome and locale-matched `titleI18n` / `prizeI18n` in the HTML (not only a client switch):
+
+| Page | Path |
+| --- | --- |
+| Directory | `/{locale}` (English also at `/`, canonical `/en`) |
+| Detail | `/{locale}/g/{id}` |
+| About | `/{locale}/about` |
+
+The language switcher navigates to the same path in the other locale. Legacy unprefixed URLs (`/about`, `/g/:id`) 301 to `/en/...` on Cloudflare Pages (`public/_redirects`). `?lang=` still jumps to that prefix. The current locale is stored in `localStorage` (`4airdrops.locale`) but the **path** is the source of truth.
+
+Build emits `robots.txt` and a sitemap of every locale URL (`public/sitemap.xml`, generated on `prebuild`). Submit `https://4airdrops.com/sitemap.xml` in [Google Search Console](https://search.google.com/search-console) (Sitemaps) after deploy.
 
 Row **content** follows the selected UI locale when ingest has filled maps. Each row keeps the scraped original (`title`, `prize`, `prizeDetail`, `entry`, `risk`) plus English display fields (`titleEn`, `prizeEn`, `prizeDetailEn`, `entryEn`, `riskEn`) and `titleI18n` / `prizeI18n` (`Partial<Record<Locale, string>>` for `en zh es pt ar id ru ja de fr ko vi tr hi`). The sheet and detail view show `titleI18n[L] || titleEn || title` (same fallback for prize) and expose the original via a cell `title` tooltip or a compact **Original** block on the detail page. Search matches originals, `*En`, and all i18n values.
 
@@ -11,6 +23,7 @@ Row **content** follows the selected UI locale when ingest has filled maps. Each
 ```bash
 npm install
 npm run dev
+# open http://localhost:3000/en  (http://localhost:3000/ is the English alias)
 ```
 
 Binance referral (env wins when set; otherwise the same URL is the code fallback):
@@ -67,3 +80,9 @@ Default filters: active (unverified) + hide deadlines farther than 60 days or �
 ## Deploy
 
 Cloudflare Pages: build `npm run build`, output `out/`. Domain: `4airdrops.com`.
+
+After a production deploy, add the sitemap in Search Console if it is not there yet:
+
+1. Open [Google Search Console](https://search.google.com/search-console) for `4airdrops.com`
+2. Sitemaps → add `https://4airdrops.com/sitemap.xml`
+3. Optional: Bing Webmaster Tools → Sitemaps → same URL

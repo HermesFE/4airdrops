@@ -6,6 +6,7 @@ import { BinanceCta } from "./BinanceCta";
 import { formatDeadline } from "@/lib/deadline";
 import { displayCategory, displayPlatform, displayRegion } from "@/lib/fieldLabels";
 import { statusLabel, useI18n } from "@/i18n/I18nProvider";
+import { localePath } from "@/i18n/paths";
 import {
   cleanDisplayText,
   displayEntry,
@@ -48,7 +49,7 @@ export function GiveawayRecord({ g }: { g: Giveaway }) {
   return (
     <div className="stack">
       <p className="back">
-        <Link href="/">{m.detail.back}</Link>
+        <Link href={localePath(locale)}>{m.detail.back}</Link>
       </p>
       <h1 title={originalIfDifferent(title, g.title) || undefined}>{title}</h1>
       <table className="record">
