@@ -1,4 +1,5 @@
-import type { Giveaway } from "./types";
+import type { Locale } from "@/i18n/locales";
+import type { Giveaway, LocalizedText } from "./types";
 
 /** Display-only cleanup for scraped HTML/JS fragments. Does not change source JSON. */
 export function cleanDisplayText(raw?: string): string {
@@ -18,14 +19,35 @@ export function pickContent(original?: string, en?: string): string {
   return cleanDisplayText(en) || cleanDisplayText(original) || "";
 }
 
-export function displayTitle(g: Pick<Giveaway, "title" | "titleEn">): string {
-  return pickContent(g.title, g.titleEn);
+/** titleI18n[L] || titleEn || title (same pattern for any localized field). */
+export function pickLocalized(
+  i18n: LocalizedText | undefined,
+  en: string | undefined,
+  original: string | undefined,
+  locale?: Locale,
+): string {
+  if (locale) {
+    const hit = cleanDisplayText(i18n?.[locale]);
+    if (hit) return hit;
+  }
+  return pickContent(original, en);
+}
+
+export function displayTitle(
+  g: Pick<Giveaway, "title" | "titleEn" | "titleI18n">,
+  locale?: Locale,
+): string {
+  return pickLocalized(g.titleI18n, g.titleEn, g.title, locale);
 }
 
 export function displayPrize(
-  g: Pick<Giveaway, "prize" | "prizeEn" | "prizeDetail" | "prizeDetailEn">,
+  g: Pick<Giveaway, "prize" | "prizeEn" | "prizeI18n" | "prizeDetail" | "prizeDetailEn">,
+  locale?: Locale,
 ): string {
-  return pickContent(g.prize, g.prizeEn) || pickContent(g.prizeDetail, g.prizeDetailEn);
+  return (
+    pickLocalized(g.prizeI18n, g.prizeEn, g.prize, locale) ||
+    pickContent(g.prizeDetail, g.prizeDetailEn)
+  );
 }
 
 export function displayEntry(g: Pick<Giveaway, "entry" | "entryEn">): string {
@@ -42,15 +64,21 @@ export function originalIfDifferent(displayed: string, original?: string): strin
   return o;
 }
 
+function i18nValues(map?: LocalizedText): string[] {
+  return map ? Object.values(map).filter((v): v is string => Boolean(v)) : [];
+}
+
 export function contentSearchBlob(g: Giveaway): string {
   return [
     displayTitle(g),
     g.title,
     g.titleEn,
+    ...i18nValues(g.titleI18n),
     g.host,
     displayPrize(g),
     g.prize,
     g.prizeEn,
+    ...i18nValues(g.prizeI18n),
     g.prizeDetail,
     g.prizeDetailEn,
     displayEntry(g),

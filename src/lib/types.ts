@@ -1,12 +1,19 @@
+import type { Locale } from "@/i18n/locales";
+
+/** Ingest-time locale copies. Missing keys fall back to *En then original. */
+export type LocalizedText = Partial<Record<Locale, string>>;
+
 export type Giveaway = {
   id: string;
   title: string;
   titleEn?: string;
+  titleI18n?: LocalizedText;
   platform: string;
   category: string;
   host?: string;
   prize?: string;
   prizeEn?: string;
+  prizeI18n?: LocalizedText;
   prizeDetail?: string;
   prizeDetailEn?: string;
   deadlineRaw?: string;

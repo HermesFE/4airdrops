@@ -89,7 +89,7 @@ export function GiveawaySheet({
     });
     if (sort === "ending") list = [...list].sort((a, b) => sortDeadlineMs(a) - sortDeadlineMs(b));
     if (sort === "title") {
-      list = [...list].sort((a, b) => displayTitle(a).localeCompare(displayTitle(b), locale));
+      list = [...list].sort((a, b) => displayTitle(a, locale).localeCompare(displayTitle(b, locale), locale));
     }
     return list;
   }, [items, q, platform, category, region, status, risk, sort, hideZombies, onlyDated, includeUnknown, horizonDays, locale]);
@@ -260,8 +260,8 @@ export function GiveawaySheet({
               </tr>
             ) : (
               filtered.map((g, i) => {
-                const title = displayTitle(g);
-                const prize = displayPrize(g);
+                const title = displayTitle(g, locale);
+                const prize = displayPrize(g, locale);
                 const titleOrig = originalIfDifferent(title, g.title);
                 const prizeOrig = originalIfDifferent(prize, g.prize) || originalIfDifferent(prize, g.prizeDetail);
                 const deadline = formatDeadline(g);

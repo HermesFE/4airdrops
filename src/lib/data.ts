@@ -1,9 +1,20 @@
 import raw from "../../data/giveaways.json";
-import type { Giveaway, GiveawayFile } from "./types";
+import { localeCodes, type Locale } from "@/i18n/locales";
+import type { Giveaway, GiveawayFile, LocalizedText } from "./types";
 import { cleanDisplayText } from "./text";
 import { statusCode } from "./fieldLabels";
 
 const data = raw as GiveawayFile;
+
+function sanitizeI18n(map?: LocalizedText): LocalizedText | undefined {
+  if (!map || typeof map !== "object") return undefined;
+  const out: LocalizedText = {};
+  for (const code of localeCodes) {
+    const v = cleanDisplayText(map[code as Locale]);
+    if (v) out[code] = v;
+  }
+  return Object.keys(out).length ? out : undefined;
+}
 
 function sanitizeGiveaway(g: Giveaway): Giveaway {
   const prize = cleanDisplayText(g.prize) || undefined;
@@ -13,8 +24,10 @@ function sanitizeGiveaway(g: Giveaway): Giveaway {
   return {
     ...g,
     titleEn: cleanDisplayText(g.titleEn) || undefined,
+    titleI18n: sanitizeI18n(g.titleI18n),
     prize,
     prizeEn,
+    prizeI18n: sanitizeI18n(g.prizeI18n),
     prizeDetail: prizeDetail && prizeDetail !== prize ? prizeDetail : undefined,
     prizeDetailEn: prizeDetailEn && prizeDetailEn !== prizeEn ? prizeDetailEn : prizeDetailEn,
     entry: cleanDisplayText(g.entry) || undefined,
