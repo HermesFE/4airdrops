@@ -233,10 +233,12 @@ export function parseKieTranslations(content, expected) {
       const objStart = s.indexOf("{");
       const objEnd = s.lastIndexOf("}");
       if (objStart >= 0 && objEnd > objStart) {
-        const obj = JSON.parse(s.slice(objStart, objEnd + 1));
-        parsed = obj.translations || obj.items || obj.results || Object.values(obj);
+        parsed = JSON.parse(s.slice(objStart, objEnd + 1));
       }
     }
+  }
+  if (parsed && !Array.isArray(parsed) && typeof parsed === "object") {
+    parsed = parsed.translations || parsed.items || parsed.results || Object.values(parsed);
   }
   if (!Array.isArray(parsed)) throw new Error("kie parse: not an array");
   const rows = parsed.map((x) => (x == null ? "" : String(x).trim()));
