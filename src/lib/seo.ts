@@ -9,6 +9,9 @@ import type { Giveaway } from "@/lib/types";
 
 export { absoluteUrl, languageAlternates, SITE_NAME, SITE_ORIGIN } from "@/i18n/paths";
 
+/** Google Search Console HTML-file token (also in public/google6d7a3a615f2cfb83.html). */
+export const GOOGLE_SITE_VERIFICATION = "yUDX3A2Ggr42nu5Ok5WWCCGdvL_8txNIzk7JSc_8Li4";
+
 export function requireLocale(value: string): Locale {
   if (!isLocale(value)) {
     throw new Error(`Invalid locale: ${value}`);
@@ -36,6 +39,7 @@ export function localeMetadata(
     title,
     description: desc,
     robots: { index: true, follow: true },
+    verification: { google: GOOGLE_SITE_VERIFICATION },
     alternates: {
       canonical: url,
       languages: languageAlternates(rest, locales),
@@ -85,6 +89,7 @@ export function rootAliasMetadata(): Metadata {
     title: copy.homeTitle,
     description: copy.homeDescription,
     robots: { index: true, follow: true },
+    verification: { google: GOOGLE_SITE_VERIFICATION },
     alternates: {
       canonical: url,
       languages: languageAlternates("/"),

@@ -1,3 +1,7 @@
+# Google Search Console HTML verification: proxy to a non-.html asset so
+# Pages pretty URLs do not 308-strip the .html suffix (file kept in public/).
+/google6d7a3a615f2cfb83.html /google6d7a3a615f2cfb83.txt 200
+
 # Cloudflare Pages: English lives at /en. Unprefixed URLs stay reachable.
 / /en 301
 /about /en/about 301

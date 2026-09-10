@@ -3,6 +3,7 @@ import { SiteChrome } from "@/components/SiteChrome";
 import { isLocale, localeMeta } from "@/i18n/locales";
 import { seoCopy } from "@/i18n/seoCopy";
 import { SITE_ORIGIN } from "@/i18n/paths";
+import { GOOGLE_SITE_VERIFICATION } from "@/lib/seo";
 import { localeStaticParams } from "@/lib/staticParams";
 import "../globals.css";
 
@@ -21,6 +22,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     title: copy.homeTitle,
     description: copy.homeDescription,
     robots: { index: true, follow: true },
+    verification: { google: GOOGLE_SITE_VERIFICATION },
   };
 }
 
