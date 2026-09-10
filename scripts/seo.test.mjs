@@ -86,3 +86,70 @@ test("sitemap lists every locale home/about; details only for SSG locales", () =
   assert.match(xml, /<lastmod>2026-09-10<\/lastmod>/);
   assert.equal(sitemapPaths(["a", "b"]).length, LOCALE_CODES.length * 2 + SSG_DETAIL_LOCALES.length * 2);
 });
+
+const BRAND_FILES = [
+  "favicon.ico",
+  "icon.svg",
+  "favicon-16x16.png",
+  "favicon-32x32.png",
+  "apple-touch-icon.png",
+  "og.png",
+  "site.webmanifest",
+];
+
+test("brand kit files exist and are non-empty", () => {
+  for (const name of BRAND_FILES) {
+    const p = path.join(ROOT, "public", name);
+    assert.ok(fs.existsSync(p), p);
+    assert.ok(fs.statSync(p).size > 0, `${name} size`);
+  }
+});
+
+test("PNG brand assets have PNG signatures and expected pixel sizes", () => {
+  const sizes = {
+    "favicon-16x16.png": [16, 16],
+    "favicon-32x32.png": [32, 32],
+    "apple-touch-icon.png": [180, 180],
+    "og.png": [1200, 630],
+  };
+  for (const [name, [w, h]] of Object.entries(sizes)) {
+    const buf = fs.readFileSync(path.join(ROOT, "public", name));
+    assert.equal(buf[0], 0x89);
+    assert.equal(buf.toString("ascii", 1, 4), "PNG");
+    assert.equal(buf.readUInt32BE(16), w, `${name} width`);
+    assert.equal(buf.readUInt32BE(20), h, `${name} height`);
+  }
+});
+
+test("favicon.ico is an ICO container", () => {
+  const buf = fs.readFileSync(path.join(ROOT, "public", "favicon.ico"));
+  assert.equal(buf.readUInt16LE(0), 0);
+  assert.equal(buf.readUInt16LE(2), 1);
+  assert.ok(buf.readUInt16LE(4) >= 1);
+});
+
+test("icon.svg and webmanifest use Excel green #217346 and 4A", () => {
+  const svg = fs.readFileSync(path.join(ROOT, "public", "icon.svg"), "utf8");
+  assert.match(svg, /#217346/);
+  assert.match(svg, />4A</);
+  const manifest = JSON.parse(fs.readFileSync(path.join(ROOT, "public", "site.webmanifest"), "utf8"));
+  assert.equal(manifest.theme_color, "#217346");
+  assert.equal(manifest.short_name, "4A");
+  assert.equal(manifest.name, "4Airdrops");
+  assert.ok(manifest.icons.some((i) => i.src === "/icon.svg"));
+  assert.ok(manifest.icons.some((i) => i.src === "/apple-touch-icon.png"));
+});
+
+test("localeMetadata source wires icons, themeColor, OG/twitter, manifest", () => {
+  const src = fs.readFileSync(path.join(ROOT, "src/lib/seo.ts"), "utf8");
+  assert.match(src, /THEME_COLOR = "#217346"/);
+  assert.match(src, /themeColor: THEME_COLOR/);
+  assert.match(src, /manifest: MANIFEST_PATH/);
+  assert.match(src, /\/favicon\.ico/);
+  assert.match(src, /\/icon\.svg/);
+  assert.match(src, /\/apple-touch-icon\.png/);
+  assert.match(src, /card: "summary_large_image"/);
+  assert.match(src, /OG_IMAGE_PATH = "\/og\.png"/);
+  const layout = fs.readFileSync(path.join(ROOT, "src/app/[locale]/layout.tsx"), "utf8");
+  assert.match(layout, /homeMetadata/);
+});

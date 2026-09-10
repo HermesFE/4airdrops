@@ -13,7 +13,8 @@
     "import-csv": "node scripts/import-csv.mjs",
     "test": "node --test scripts/*.test.mjs",
     "test:content-i18n": "node --test scripts/content-i18n.test.mjs",
-    "test:seo": "node --test scripts/seo.test.mjs"
+    "test:seo": "node --test scripts/seo.test.mjs",
+    "generate-brand": "node scripts/generate-brand.mjs"
   },
   "keywords": [],
   "author": "",
