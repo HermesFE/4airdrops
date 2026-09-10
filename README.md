@@ -6,15 +6,19 @@ Default UI language is **English**. Chrome is translated for: `en`, `zh`, `es`, 
 
 Each locale has its own URL so crawlers see translated chrome and locale-matched `titleI18n` / `prizeI18n` in the HTML (not only a client switch):
 
-| Page | Path |
-| --- | --- |
-| Directory | `/{locale}` (`/` redirects to `/en`) |
-| Detail | `/{locale}/g/{id}` |
-| About | `/{locale}/about` |
+| Page | Path | Locales |
+| --- | --- | --- |
+| Directory | `/{locale}` (`/` redirects to `/en`) | all 14 |
+| About | `/{locale}/about` | all 14 |
+| Detail | `/{locale}/g/{id}` | **SSG priority set** `en`, `zh`, `es`, `ja`, `ko`, `pt` (`detailLocales` in `src/i18n/locales.ts`) |
 
-The language switcher navigates to the same path in the other locale. Legacy unprefixed URLs (`/about`, `/g/:id`) 301 to `/en/...` on Cloudflare Pages (`public/_redirects`). `?lang=` still jumps to that prefix. The current locale is stored in `localStorage` (`4airdrops.locale`) but the **path** is the source of truth.
+Cloudflare Pages rejects a deploy with more than **20,000 files**. Full 14-locale detail SSG (~945 giveaways × 14, plus `_next` assets and RSC payloads) crosses that cap. Homes, about, locale switcher, and hreflang chrome stay on all 14 languages. Detail HTML is limited to the six locales above (~5.7k pages) so the `out/` tree stays under the limit. `titleI18n` / `prizeI18n` are still stored and used on every locale’s directory. To add more detail locales later, extend `detailLocales` / `SSG_DETAIL_LOCALES` (keep them in sync).
 
-Build emits `robots.txt` and a sitemap of every locale URL (`public/sitemap.xml`, generated on `prebuild`). Submit `https://4airdrops.com/sitemap.xml` in [Google Search Console](https://search.google.com/search-console) (Sitemaps) after deploy.
+The language switcher navigates to the same path in the other locale **when that page exists**. From a giveaway detail, switching to a locale that is not in `detailLocales` goes to that locale’s directory home (`/{locale}`) — not a 404, and not a mixed-language English detail. On those chrome-only locales, directory title links open the English detail (`/en/g/{id}`) so the row still works.
+
+Legacy unprefixed URLs (`/about`, `/g/:id`) 301 to `/en/...` on Cloudflare Pages (`public/_redirects`). Previously published detail URLs for chrome-only locales (`/ar/g/:id`, and the same for `id`, `ru`, `de`, `fr`, `vi`, `tr`, `hi`) 301 to `/en/g/:id`. `?lang=` still jumps to that prefix (same home fallback on details). The current locale is stored in `localStorage` (`4airdrops.locale`) but the **path** is the source of truth.
+
+Build emits `robots.txt` and a sitemap (`public/sitemap.xml`, generated on `prebuild`): homes and about for all 14 locales; giveaway details only for `detailLocales`. Detail hreflang alternates only among those built locales (`x-default` → `en`). Submit `https://4airdrops.com/sitemap.xml` in [Google Search Console](https://search.google.com/search-console) (Sitemaps) after deploy.
 
 Row **content** follows the selected UI locale when ingest has filled maps. Each row keeps the scraped original (`title`, `prize`, `prizeDetail`, `entry`, `risk`) plus English display fields (`titleEn`, `prizeEn`, `prizeDetailEn`, `entryEn`, `riskEn`) and `titleI18n` / `prizeI18n` (`Partial<Record<Locale, string>>` for `en zh es pt ar id ru ja de fr ko vi tr hi`). The sheet and detail view show `titleI18n[L] || titleEn || title` (same fallback for prize) and expose the original via a cell `title` tooltip or a compact **Original** block on the detail page. Search matches originals, `*En`, and all i18n values.
 
@@ -79,7 +83,7 @@ Default filters: active (unverified) + hide deadlines farther than 60 days or �
 
 ## Deploy
 
-Cloudflare Pages: build `npm run build`, output `out/`. Domain: `4airdrops.com`.
+Cloudflare Pages: build `npm run build`, output `out/`. Domain: `4airdrops.com`. Keep the deploy under 20k files (see `detailLocales` above). Zeabur can host a larger static tree if you ever need all 14 detail locales.
 
 After a production deploy, add the sitemap in Search Console if it is not there yet:
 

@@ -2,3 +2,14 @@
 / /en 301
 /about /en/about 301
 /g/:id /en/g/:id 301
+
+# Detail HTML is only SSG'd for en/zh/es/ja/ko/pt (Cloudflare 20k-file cap).
+# Previously published locale details 301 to the English page of the same id.
+/ar/g/:id /en/g/:id 301
+/id/g/:id /en/g/:id 301
+/ru/g/:id /en/g/:id 301
+/de/g/:id /en/g/:id 301
+/fr/g/:id /en/g/:id 301
+/vi/g/:id /en/g/:id 301
+/tr/g/:id /en/g/:id 301
+/hi/g/:id /en/g/:id 301

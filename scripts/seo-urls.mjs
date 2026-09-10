@@ -21,6 +21,9 @@ export const LOCALE_CODES = [
 
 export const DEFAULT_LOCALE = "en";
 
+/** Must match `detailLocales` in src/i18n/locales.ts (Cloudflare 20k-file cap). */
+export const SSG_DETAIL_LOCALES = ["en", "zh", "es", "ja", "ko", "pt"];
+
 /** Must match `localeMeta[code].htmlLang` in src/i18n/locales.ts */
 export const HTML_LANG = {
   en: "en",
@@ -60,8 +63,12 @@ export function xmlEscape(value) {
     .replace(/"/g, "&quot;");
 }
 
-export function xhtmlLinks(rest = "/") {
-  const links = LOCALE_CODES.map(
+export function isGiveawayDetailRest(rest) {
+  return typeof rest === "string" && rest.startsWith("/g/");
+}
+
+export function xhtmlLinks(rest = "/", locales = isGiveawayDetailRest(rest) ? SSG_DETAIL_LOCALES : LOCALE_CODES) {
+  const links = locales.map(
     (code) =>
       `    <xhtml:link rel="alternate" hreflang="${xmlEscape(HTML_LANG[code])}" href="${xmlEscape(absoluteUrl(code, rest))}"/>`,
   );
@@ -71,24 +78,34 @@ export function xhtmlLinks(rest = "/") {
   return links.join("\n");
 }
 
+function urlEntry(locale, rest, lastmodTag, locales) {
+  return `  <url>
+    <loc>${xmlEscape(absoluteUrl(locale, rest))}</loc>${lastmodTag}
+${xhtmlLinks(rest, locales)}
+  </url>`;
+}
+
 export function sitemapPaths(ids) {
-  const rests = ["/", "/about", ...ids.map((id) => giveawayRestPath(id))];
-  return rests.flatMap((rest) => LOCALE_CODES.map((locale) => ({ locale, rest, loc: absoluteUrl(locale, rest) })));
+  const chrome = ["/", "/about"].flatMap((rest) =>
+    LOCALE_CODES.map((locale) => ({ locale, rest, loc: absoluteUrl(locale, rest) })),
+  );
+  const details = ids.flatMap((id) => {
+    const rest = giveawayRestPath(id);
+    return SSG_DETAIL_LOCALES.map((locale) => ({ locale, rest, loc: absoluteUrl(locale, rest) }));
+  });
+  return [...chrome, ...details];
 }
 
 export function buildSitemapXml({ ids, lastmod }) {
-  const restList = ["/", "/about", ...ids.map((id) => giveawayRestPath(id))];
   const lastmodTag = lastmod ? `\n    <lastmod>${xmlEscape(lastmod)}</lastmod>` : "";
-  const urls = restList
-    .map((rest) => {
-      return LOCALE_CODES.map((locale) => {
-        return `  <url>
-    <loc>${xmlEscape(absoluteUrl(locale, rest))}</loc>${lastmodTag}
-${xhtmlLinks(rest)}
-  </url>`;
-      }).join("\n");
-    })
-    .join("\n");
+  const chromeUrls = ["/", "/about"].flatMap((rest) =>
+    LOCALE_CODES.map((locale) => urlEntry(locale, rest, lastmodTag, LOCALE_CODES)),
+  );
+  const detailUrls = ids.flatMap((id) => {
+    const rest = giveawayRestPath(id);
+    return SSG_DETAIL_LOCALES.map((locale) => urlEntry(locale, rest, lastmodTag, SSG_DETAIL_LOCALES));
+  });
+  const urls = [...chromeUrls, ...detailUrls].join("\n");
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
