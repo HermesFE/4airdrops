@@ -5,3 +5,4 @@ node_modules
 .DS_Store
 out
 public/sitemap.xml
+tsconfig.tsbuildinfo

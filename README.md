@@ -8,7 +8,7 @@ Each locale has its own URL so crawlers see translated chrome and locale-matched
 
 | Page | Path |
 | --- | --- |
-| Directory | `/{locale}` (English also at `/`, canonical `/en`) |
+| Directory | `/{locale}` (`/` redirects to `/en`) |
 | Detail | `/{locale}/g/{id}` |
 | About | `/{locale}/about` |
 
