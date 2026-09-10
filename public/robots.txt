@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://4airdrops.com/sitemap.xml

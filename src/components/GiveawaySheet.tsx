@@ -13,6 +13,7 @@ import {
 } from "@/lib/fieldLabels";
 import { DEFAULT_HORIZON_DAYS, HORIZON_CHOICES, STATUS_ONGOING, STATUS_UNKNOWN } from "@/lib/status";
 import { formatMsg, statusLabel, useI18n } from "@/i18n/I18nProvider";
+import { giveawayRestPath, localePath } from "@/i18n/paths";
 import { BinanceCta } from "./BinanceCta";
 
 function statusesOf(items: Giveaway[]): string[] {
@@ -275,7 +276,7 @@ export function GiveawaySheet({
                   <td className="col-platform" title={platformLabel}>{platformLabel}</td>
                   <td className="col-category" title={categoryLabel}>{categoryLabel}</td>
                   <td className="col-title" title={titleOrig || title}>
-                    <Link href={`/g/${encodeURIComponent(g.id)}`}>{title || m.filter.untitled}</Link>
+                    <Link href={localePath(locale, giveawayRestPath(g.id))}>{title || m.filter.untitled}</Link>
                   </td>
                   <td className="col-prize" title={prizeOrig || prize}>
                     {prize || m.filter.dash}

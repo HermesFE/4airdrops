@@ -1,0 +1,4 @@
+# Cloudflare Pages: English lives at /en. Unprefixed URLs stay reachable.
+/ /en 301
+/about /en/about 301
+/g/:id /en/g/:id 301

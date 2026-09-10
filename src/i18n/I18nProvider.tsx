@@ -1,16 +1,13 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useContext, useMemo } from "react";
 import { catalogs } from "./catalogs";
 import type { Messages } from "./en";
-import { applyDocumentLocale, defaultLocale, isLocale, type Locale } from "./locales";
+import type { Locale } from "./locales";
 import { statusCode } from "@/lib/fieldLabels";
-
-const STORAGE_KEY = "4airdrops.locale";
 
 type I18nContextValue = {
   locale: Locale;
-  setLocale: (locale: Locale) => void;
   m: Messages;
 };
 
@@ -26,25 +23,9 @@ export function statusLabel(m: Messages, raw?: string): string {
   return m.status[code];
 }
 
-export function I18nProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>(defaultLocale);
-
-  useEffect(() => {
-    const query = new URLSearchParams(window.location.search).get("lang");
-    const saved = window.localStorage.getItem(STORAGE_KEY);
-    const next = isLocale(query) ? query : isLocale(saved) ? saved : defaultLocale;
-    setLocaleState(next);
-    applyDocumentLocale(next);
-  }, []);
-
-  const setLocale = useCallback((next: Locale) => {
-    setLocaleState(next);
-    window.localStorage.setItem(STORAGE_KEY, next);
-    applyDocumentLocale(next);
-  }, []);
-
-  const value = useMemo(() => ({ locale, setLocale, m: catalogs[locale] }), [locale, setLocale]);
-
+/** Locale comes from the URL segment so SSG HTML already matches the path. */
+export function I18nProvider({ locale, children }: { locale: Locale; children: React.ReactNode }) {
+  const value = useMemo(() => ({ locale, m: catalogs[locale] }), [locale]);
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }
 
