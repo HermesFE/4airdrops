@@ -1,6 +1,6 @@
 import { defaultLocale, localeMeta } from "@/i18n/locales";
 import { localePath } from "@/i18n/paths";
-import { rootAliasMetadata } from "@/lib/seo";
+import { GOOGLE_SITE_VERIFICATION, rootAliasMetadata } from "@/lib/seo";
 import "./globals.css";
 
 export const metadata = rootAliasMetadata();
@@ -15,6 +15,7 @@ export default function RootRedirectPage() {
   return (
     <html lang={meta.htmlLang} dir={meta.dir}>
       <head>
+        <meta name="google-site-verification" content={GOOGLE_SITE_VERIFICATION} />
         <meta httpEquiv="refresh" content={`0; url=${href}`} />
       </head>
       <body>
