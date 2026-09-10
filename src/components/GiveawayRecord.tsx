@@ -15,9 +15,9 @@ import {
   originalIfDifferent,
 } from "@/lib/text";
 
-function originalRows(g: Giveaway, m: ReturnType<typeof useI18n>["m"]) {
-  const title = displayTitle(g);
-  const prize = displayPrize(g);
+function originalRows(g: Giveaway, m: ReturnType<typeof useI18n>["m"], locale: ReturnType<typeof useI18n>["locale"]) {
+  const title = displayTitle(g, locale);
+  const prize = displayPrize(g, locale);
   const prizeDetail = g.prizeDetailEn || g.prizeDetail || "";
   const entry = displayEntry(g);
   const risk = displayRisk(g);
@@ -38,12 +38,12 @@ function originalRows(g: Giveaway, m: ReturnType<typeof useI18n>["m"]) {
 export function GiveawayRecord({ g }: { g: Giveaway }) {
   const { m, locale } = useI18n();
   const outbound = g.url || g.sourceUrl;
-  const title = displayTitle(g);
-  const prize = displayPrize(g);
+  const title = displayTitle(g, locale);
+  const prize = displayPrize(g, locale);
   const prizeDetailShown = cleanDisplayText(g.prizeDetailEn) || cleanDisplayText(g.prizeDetail);
   const entry = displayEntry(g);
   const risk = displayRisk(g);
-  const originals = originalRows(g, m);
+  const originals = originalRows(g, m, locale);
   const deadline = formatDeadline(g);
   return (
     <div className="stack">

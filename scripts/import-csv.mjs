@@ -11,30 +11,43 @@
  * Default: keep 活动状态 === 疑似进行中 (the "ongoing / unverified" set).
  * 状态不明 is ~thousands of rows — only include with --include-unknown.
  *
- * English display fields (titleEn, prizeEn, prizeDetailEn, entryEn, riskEn):
- *   Filled at ingest. Originals are kept. UI chrome is the 14-locale i18n
- *   layer; we do NOT translate every row into 14 languages.
- *   Latin/English source → copy through. Otherwise machine-translate to
- *   English (Google gtx unofficial endpoint, MyMemory fallback). See
- *   scripts/english-display.mjs. Previous giveaways.json *En values are
- *   reused when id + source text are unchanged.
+ * Content fields:
+ *   Originals stay (title, prize, prizeDetail, entry, risk).
+ *   English display (*En) is filled at ingest.
+ *   titleI18n / prizeI18n are Partial<Record<Locale,string>> for the 14 UI
+ *   locales, filled via Kie Gemini 3.5 Flash. See scripts/content-i18n.mjs.
+ *   Previous giveaways.json *En / *I18n values are reused when id + source
+ *   text are unchanged.
  *
  * Usage:
- *   npm run import-csv -- /path/to/Giveaway主表.csv
+ *   KIE_API_KEY=... npm run import-csv -- /path/to/Giveaway主表.csv
  *   npm run import-csv -- ./export.json --include-unknown --max 1200
- *   npm run import-csv -- data/giveaways.json --skip-en
- *   npm run import-csv -- data/giveaways.json --force-en
+ *   npm run import-csv -- data/giveaways.json --skip-en --skip-i18n
+ *   npm run import-csv -- data/giveaways.json --force-en --force-i18n
  *
- * Writes data/giveaways.json (compact). Cloudflare Pages build: npm run build.
+ * Writes data/giveaways.json (compact). Cloudflare Pages build: npm run build
+ * (build does not call Kie and does not need KIE_API_KEY).
  */
 
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { EN_FIELDS, emptyEnStats, fillEnglishFields, reuseUnchangedEn } from "./english-display.mjs";
+import {
+  EN_FIELDS,
+  assertTranslateMode,
+  createTranslator,
+  emptyEnStats,
+  emptyI18nStats,
+  fillEnglishFields,
+  fillI18nFields,
+  loadDotEnv,
+  reuseUnchangedContent,
+} from "./content-i18n.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..");
+loadDotEnv(path.join(ROOT, ".env"));
+
 const DEFAULT_OUT = path.join(ROOT, "data", "giveaways.json");
 
 const STATUS_ONGOING = "疑似进行中";
@@ -69,12 +82,18 @@ function parseArgs(argv) {
     out: "",
     skipEn: false,
     forceEn: false,
+    skipI18n: false,
+    forceI18n: false,
+    allowGtxFallback: false,
   };
   for (const a of argv) {
     if (a === "--include-unknown") args.includeUnknown = true;
     else if (a === "--include-ended") args.includeEnded = true;
     else if (a === "--skip-en") args.skipEn = true;
     else if (a === "--force-en") args.forceEn = true;
+    else if (a === "--skip-i18n") args.skipI18n = true;
+    else if (a === "--force-i18n") args.forceI18n = true;
+    else if (a === "--allow-gtx-fallback") args.allowGtxFallback = true;
     else if (a.startsWith("--max=")) args.max = Number(a.slice(6)) || 0;
     else if (a.startsWith("--out=")) args.out = a.slice(6);
     else if (a === "--max") args._maxNext = true;
@@ -151,6 +170,15 @@ function pick(obj, aliases) {
   return "";
 }
 
+function copyLocaleMap(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+  const out = {};
+  for (const [k, v] of Object.entries(value)) {
+    if (v != null && String(v).trim()) out[k] = String(v).trim();
+  }
+  return Object.keys(out).length ? out : undefined;
+}
+
 function rowToItem(obj) {
   const id = pick(obj, COL.id);
   const title = pick(obj, COL.title);
@@ -178,6 +206,10 @@ function rowToItem(obj) {
     const v = pick(obj, [dest]);
     if (v) item[dest] = v;
   }
+  const titleI18n = copyLocaleMap(obj.titleI18n);
+  const prizeI18n = copyLocaleMap(obj.prizeI18n);
+  if (titleI18n) item.titleI18n = titleI18n;
+  if (prizeI18n) item.prizeI18n = prizeI18n;
   return item;
 }
 
@@ -221,6 +253,7 @@ function compactItem(item) {
   const out = {};
   for (const [k, v] of Object.entries(item)) {
     if (v == null || v === "") continue;
+    if (typeof v === "object" && !Array.isArray(v) && Object.keys(v).length === 0) continue;
     out[k] = v;
   }
   return out;
@@ -238,7 +271,7 @@ function countByStatus(items) {
 const args = parseArgs(process.argv.slice(2));
 if (!args.file) {
   console.error(
-    "Usage: npm run import-csv -- /path/to/Giveaway主表.csv [--include-unknown] [--max N] [--skip-en|--force-en]",
+    "Usage: npm run import-csv -- /path/to/Giveaway主表.csv [--include-unknown] [--max N] [--skip-en|--force-en] [--skip-i18n|--force-i18n] [--allow-gtx-fallback]",
   );
   process.exit(1);
 }
@@ -246,6 +279,14 @@ const abs = path.resolve(args.file);
 if (!fs.existsSync(abs)) {
   console.error("File not found:", abs);
   process.exit(1);
+}
+
+const mode = assertTranslateMode({
+  skipEn: args.skipEn,
+  allowGtxFallback: args.allowGtxFallback,
+});
+if (mode === "gtx") {
+  console.warn("Using unofficial Google gtx / MyMemory (--allow-gtx-fallback). Prefer KIE_API_KEY.");
 }
 
 const { items: loaded, meta: inputMeta } = loadItems(abs);
@@ -265,20 +306,50 @@ if (args.max > 0) items = items.slice(0, args.max);
 const OUT = args.out ? path.resolve(args.out) : DEFAULT_OUT;
 const prevById = loadPrevious(OUT);
 const enStats = emptyEnStats();
+const i18nStats = emptyI18nStats();
+const cache = new Map();
+const translator = createTranslator({
+  mode: mode === "skip" ? "kie" : mode,
+  cache,
+  allowGtxFallback: args.allowGtxFallback,
+});
+
+items = items.map((item) => reuseUnchangedContent(item, prevById.get(item.id)));
+
 if (!args.skipEn) {
-  const cache = new Map();
   const filled = [];
   for (let i = 0; i < items.length; i++) {
-    const merged = reuseUnchangedEn(items[i], prevById.get(items[i].id));
-    filled.push(await fillEnglishFields(merged, { cache, stats: enStats, force: args.forceEn }));
+    filled.push(await fillEnglishFields(items[i], { cache, stats: enStats, force: args.forceEn, translator }));
     if ((i + 1) % 100 === 0) {
       console.log(`English display ${i + 1}/${items.length} …`, enStats);
     }
   }
-  items = filled.map(compactItem);
-} else {
-  items = items.map(compactItem);
+  items = filled;
 }
+
+// --skip-en is the offline hatch: no Kie calls unless --force-i18n is explicit.
+const skipI18nNetwork = args.skipI18n || (args.skipEn && !args.forceI18n);
+if (!skipI18nNetwork) {
+  const hasKey = Boolean(process.env.KIE_API_KEY && String(process.env.KIE_API_KEY).trim());
+  if (!hasKey && !args.allowGtxFallback) {
+    console.warn("Skipping titleI18n/prizeI18n network fill (no KIE_API_KEY).");
+  } else {
+    const i18nTranslator = createTranslator({
+      mode: hasKey ? "kie" : "gtx",
+      cache,
+      allowGtxFallback: args.allowGtxFallback,
+    });
+    items = await fillI18nFields(items, {
+      cache,
+      stats: i18nStats,
+      force: args.forceI18n,
+      translator: i18nTranslator,
+    });
+    console.log("Content i18n:", i18nStats);
+  }
+}
+
+items = items.map(compactItem);
 
 const payload = {
   updatedAt: new Date().toISOString().slice(0, 10),
@@ -286,20 +357,25 @@ const payload = {
   items,
   note: args.includeUnknown
     ? "Imported with --include-unknown. Prefer default 疑似进行中-only for Cloudflare Pages size."
-    : "Daily sync: 活动状态=疑似进行中. UI label: Active (unverified) / 进行中（待核验）. Row content: original + titleEn/prizeEn/entryEn.",
+    : "Daily sync: 活动状态=疑似进行中. UI label: Active (unverified) / 进行中（待核验）. Row content: original + *En + titleI18n/prizeI18n.",
   sync: {
     source: inputMeta?.sync?.source || path.basename(abs),
     defaultStatus: STATUS_ONGOING,
     includeUnknown: args.includeUnknown,
     masterCounts,
-    command: "npm run import-csv -- /path/to/Giveaway主表.csv",
+    command: "KIE_API_KEY=… npm run import-csv -- /path/to/Giveaway主表.csv",
     enDisplay: {
       method:
-        "Latin/English copied through. Else Google translate.googleapis.com/translate_a/single?client=gtx (no key), MyMemory fallback. See scripts/english-display.mjs.",
+        "Kie Gemini 3.5 Flash (POST /gemini-3-5-flash-openai/v1/chat/completions, model gemini-3-5-flash). Latin/English copied through. Optional --allow-gtx-fallback. See scripts/content-i18n.mjs.",
       skipEn: args.skipEn,
       forceEn: args.forceEn,
+      skipI18n: args.skipI18n,
+      forceI18n: args.forceI18n,
+      allowGtxFallback: args.allowGtxFallback,
+      provider: skipI18nNetwork ? "skipped" : process.env.KIE_API_KEY ? "kie" : args.allowGtxFallback ? "gtx" : "skipped",
       ...enStats,
     },
+    contentI18n: i18nStats,
   },
 };
 
@@ -308,3 +384,4 @@ fs.writeFileSync(OUT, JSON.stringify(payload));
 console.log(`Wrote ${items.length} / ${all.length} rows -> ${path.relative(ROOT, OUT)}`);
 console.log("Master status counts:", masterCounts);
 console.log("English display:", args.skipEn ? "skipped" : enStats);
+console.log("Content i18n:", skipI18nNetwork ? "skipped" : i18nStats);

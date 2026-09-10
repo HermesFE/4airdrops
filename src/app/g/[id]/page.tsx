@@ -6,6 +6,7 @@ export function generateStaticParams() {
   return getAllGiveaways().map((g) => ({ id: g.id }));
 }
 
+/** Detail chrome + title/prize follow I18nProvider locale inside GiveawayRecord. */
 export default async function GiveawayDetailPage({
   params,
 }: {

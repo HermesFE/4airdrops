@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "import-csv": "node scripts/import-csv.mjs"
+    "import-csv": "node scripts/import-csv.mjs",
+    "test:content-i18n": "node --test scripts/content-i18n.test.mjs"
   },
   "keywords": [],
   "author": "",
