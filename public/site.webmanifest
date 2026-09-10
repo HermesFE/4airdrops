@@ -1,0 +1,32 @@
+{
+  "name": "4Airdrops",
+  "short_name": "4A",
+  "description": "Public giveaway / airdrop directory",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#c8c2b4",
+  "theme_color": "#217346",
+  "icons": [
+    {
+      "src": "/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

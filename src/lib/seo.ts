@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { catalogs } from "@/i18n/catalogs";
 import { defaultLocale, detailLocales, isLocale, localeCodes, localeMeta, type Locale } from "@/i18n/locales";
 import { absoluteUrl, languageAlternates, SITE_NAME, SITE_ORIGIN, type LocaleRestPath } from "@/i18n/paths";
@@ -11,6 +11,38 @@ export { absoluteUrl, languageAlternates, SITE_NAME, SITE_ORIGIN } from "@/i18n/
 
 /** Google Search Console HTML-file token (also in public/google6d7a3a615f2cfb83.html). */
 export const GOOGLE_SITE_VERIFICATION = "yUDX3A2Ggr42nu5Ok5WWCCGdvL_8txNIzk7JSc_8Li4";
+
+/** Excel-green brand kit in public/ (favicon, OG, webmanifest). */
+export const THEME_COLOR = "#217346";
+export const OG_IMAGE_PATH = "/og.png";
+export const MANIFEST_PATH = "/site.webmanifest";
+
+const OG_IMAGE = {
+  url: OG_IMAGE_PATH,
+  width: 1200,
+  height: 630,
+  alt: SITE_NAME,
+} as const;
+
+/** Next 15+ emits theme-color from the viewport export, not metadata. */
+export function brandViewport(): Viewport {
+  return { themeColor: THEME_COLOR };
+}
+
+function brandVisuals(): Pick<Metadata, "icons" | "manifest"> {
+  return {
+    manifest: MANIFEST_PATH,
+    icons: {
+      icon: [
+        { url: "/favicon.ico", sizes: "any" },
+        { url: "/icon.svg", type: "image/svg+xml" },
+        { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+        { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      ],
+      apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+    },
+  };
+}
 
 export function requireLocale(value: string): Locale {
   if (!isLocale(value)) {
@@ -44,6 +76,7 @@ export function localeMetadata(
       canonical: url,
       languages: languageAlternates(rest, locales),
     },
+    ...brandVisuals(),
     openGraph: {
       type: rest.startsWith("/g/") ? "article" : "website",
       url,
@@ -52,11 +85,13 @@ export function localeMetadata(
       description: desc,
       locale: localeMeta[locale].ogLocale,
       alternateLocale: locales.filter((code) => code !== locale).map((code) => localeMeta[code].ogLocale),
+      images: [OG_IMAGE],
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title,
       description: desc,
+      images: [OG_IMAGE_PATH],
     },
   };
 }
@@ -94,6 +129,7 @@ export function rootAliasMetadata(): Metadata {
       canonical: url,
       languages: languageAlternates("/"),
     },
+    ...brandVisuals(),
     openGraph: {
       type: "website",
       url,
@@ -101,11 +137,13 @@ export function rootAliasMetadata(): Metadata {
       title: copy.homeTitle,
       description: copy.homeDescription,
       locale: localeMeta[defaultLocale].ogLocale,
+      images: [OG_IMAGE],
     },
     twitter: {
-      card: "summary",
+      card: "summary_large_image",
       title: copy.homeTitle,
       description: copy.homeDescription,
+      images: [OG_IMAGE_PATH],
     },
   };
 }

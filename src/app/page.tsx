@@ -1,8 +1,9 @@
 import { defaultLocale, localeMeta } from "@/i18n/locales";
 import { localePath } from "@/i18n/paths";
-import { GOOGLE_SITE_VERIFICATION, rootAliasMetadata } from "@/lib/seo";
+import { brandViewport, GOOGLE_SITE_VERIFICATION, rootAliasMetadata } from "@/lib/seo";
 import "./globals.css";
 
+export const viewport = brandViewport();
 export const metadata = rootAliasMetadata();
 
 /**
