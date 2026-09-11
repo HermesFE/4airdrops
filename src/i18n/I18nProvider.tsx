@@ -1,7 +1,6 @@
 "use client";
 
 import { createContext, useContext, useMemo } from "react";
-import { catalogs } from "./catalogs";
 import type { Messages } from "./en";
 import type { Locale } from "./locales";
 import { statusCode } from "@/lib/fieldLabels";
@@ -23,9 +22,17 @@ export function statusLabel(m: Messages, raw?: string): string {
   return m.status[code];
 }
 
-/** Locale comes from the URL segment so SSG HTML already matches the path. */
-export function I18nProvider({ locale, children }: { locale: Locale; children: React.ReactNode }) {
-  const value = useMemo(() => ({ locale, m: catalogs[locale] }), [locale]);
+/** Locale + messages come from the server so the client bundle holds one catalog. */
+export function I18nProvider({
+  locale,
+  messages,
+  children,
+}: {
+  locale: Locale;
+  messages: Messages;
+  children: React.ReactNode;
+}) {
+  const value = useMemo(() => ({ locale, m: messages }), [locale, messages]);
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }
 

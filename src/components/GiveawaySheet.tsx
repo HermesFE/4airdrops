@@ -1,22 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
-import type { Giveaway } from "@/lib/types";
-import { contentSearchBlob, displayPrize, displayTitle, originalIfDifferent } from "@/lib/text";
+import { useEffect, useMemo, useState } from "react";
 import { formatDeadline, hasClearDeadline, isLongHorizon, sortDeadlineMs } from "@/lib/deadline";
-import {
-  displayCategory,
-  displayPlatform,
-  displayRegion,
-  sortByLabel,
-} from "@/lib/fieldLabels";
-import { DEFAULT_HORIZON_DAYS, HORIZON_CHOICES, STATUS_ONGOING, STATUS_UNKNOWN } from "@/lib/status";
+import { displayCategory, displayPlatform, displayRegion, sortByLabel } from "@/lib/fieldLabels";
+import { hideFromDefaultSheet, SHEET_PAGE_SIZE, type SheetRow } from "@/lib/sheet";
+import { DEFAULT_HORIZON_DAYS, HORIZON_CHOICES, STATUS_ENDED, STATUS_ONGOING, STATUS_UNKNOWN } from "@/lib/status";
 import { formatMsg, statusLabel, useI18n } from "@/i18n/I18nProvider";
 import { giveawayPath } from "@/i18n/paths";
 import { BinanceCta } from "./BinanceCta";
 
-function statusesOf(items: Giveaway[]): string[] {
+const SEARCH_DEBOUNCE_MS = 200;
+
+function statusesOf(items: SheetRow[]): string[] {
   return [...new Set(items.map((i) => i.status).filter(Boolean) as string[])].sort();
 }
 
@@ -28,7 +24,7 @@ export function GiveawaySheet({
   updatedAt,
   masterOngoing,
 }: {
-  items: Giveaway[];
+  items: SheetRow[];
   platforms: string[];
   categories: string[];
   regions: string[];
@@ -38,6 +34,7 @@ export function GiveawaySheet({
   const { m, locale } = useI18n();
   const statuses = useMemo(() => statusesOf(items), [items]);
   const [q, setQ] = useState("");
+  const [qDebounced, setQDebounced] = useState("");
   const [platform, setPlatform] = useState("all");
   const [category, setCategory] = useState("all");
   const [region, setRegion] = useState("all");
@@ -50,13 +47,20 @@ export function GiveawaySheet({
   const [onlyDated, setOnlyDated] = useState(false);
   const [includeUnknown, setIncludeUnknown] = useState(false);
   const [horizonDays, setHorizonDays] = useState(DEFAULT_HORIZON_DAYS);
+  const [page, setPage] = useState(1);
 
+  useEffect(() => {
+    const t = window.setTimeout(() => setQDebounced(q), SEARCH_DEBOUNCE_MS);
+    return () => window.clearTimeout(t);
+  }, [q]);
+
+  const defaultStatus = items.some((g) => g.status === STATUS_ONGOING) ? STATUS_ONGOING : "all";
   const defaults =
     q === "" &&
     platform === "all" &&
     category === "all" &&
     region === "all" &&
-    status === (items.some((g) => g.status === STATUS_ONGOING) ? STATUS_ONGOING : "all") &&
+    status === defaultStatus &&
     risk === "all" &&
     sort === "ending" &&
     hideZombies &&
@@ -65,6 +69,7 @@ export function GiveawaySheet({
     horizonDays === DEFAULT_HORIZON_DAYS;
 
   const filtered = useMemo(() => {
+    const needle = qDebounced.trim().toLowerCase();
     let list = items.filter((g) => {
       if (!includeUnknown && g.status === STATUS_UNKNOWN) return false;
       if (status === STATUS_ONGOING && includeUnknown) {
@@ -79,34 +84,58 @@ export function GiveawaySheet({
       } else if (region !== "all" && g.region !== region) {
         return false;
       }
-      if (risk === "yes" && !g.risk) return false;
-      if (risk === "no" && g.risk) return false;
+      if (risk === "yes" && !g.hasRisk) return false;
+      if (risk === "no" && g.hasRisk) return false;
       if (onlyDated && !hasClearDeadline(g)) return false;
       if (hideZombies && isLongHorizon(g, horizonDays)) return false;
-      if (q.trim()) {
-        if (!contentSearchBlob(g).includes(q.trim().toLowerCase())) return false;
-      }
+      if (status !== STATUS_ENDED && hideFromDefaultSheet(g)) return false;
+      if (needle && !g.search.includes(needle)) return false;
       return true;
     });
     if (sort === "ending") list = [...list].sort((a, b) => sortDeadlineMs(a) - sortDeadlineMs(b));
     if (sort === "title") {
-      list = [...list].sort((a, b) => displayTitle(a, locale).localeCompare(displayTitle(b, locale), locale));
+      list = [...list].sort((a, b) => a.title.localeCompare(b.title, locale));
     }
     return list;
-  }, [items, q, platform, category, region, status, risk, sort, hideZombies, onlyDated, includeUnknown, horizonDays, locale]);
+  }, [
+    items,
+    qDebounced,
+    platform,
+    category,
+    region,
+    status,
+    risk,
+    sort,
+    hideZombies,
+    onlyDated,
+    includeUnknown,
+    horizonDays,
+    locale,
+  ]);
+
+  const pageCount = Math.max(1, Math.ceil(filtered.length / SHEET_PAGE_SIZE));
+  const safePage = Math.min(page, pageCount);
+  const pageStart = (safePage - 1) * SHEET_PAGE_SIZE;
+  const pageRows = filtered.slice(pageStart, pageStart + SHEET_PAGE_SIZE);
+
+  useEffect(() => {
+    setPage(1);
+  }, [qDebounced, platform, category, region, status, risk, sort, hideZombies, onlyDated, includeUnknown, horizonDays]);
 
   function reset() {
     setQ("");
+    setQDebounced("");
     setPlatform("all");
     setCategory("all");
     setRegion("all");
-    setStatus(items.some((g) => g.status === STATUS_ONGOING) ? STATUS_ONGOING : "all");
+    setStatus(defaultStatus);
     setRisk("all");
     setSort("ending");
     setHideZombies(true);
     setOnlyDated(false);
     setIncludeUnknown(false);
     setHorizonDays(DEFAULT_HORIZON_DAYS);
+    setPage(1);
   }
 
   return (
@@ -260,42 +289,68 @@ export function GiveawaySheet({
                 </td>
               </tr>
             ) : (
-              filtered.map((g, i) => {
-                const title = displayTitle(g, locale);
-                const prize = displayPrize(g, locale);
-                const titleOrig = originalIfDifferent(title, g.title);
-                const prizeOrig = originalIfDifferent(prize, g.prize) || originalIfDifferent(prize, g.prizeDetail);
+              pageRows.map((g, i) => {
                 const deadline = formatDeadline(g);
                 const platformLabel = displayPlatform(g.platform, locale) || m.filter.dash;
                 const categoryLabel = displayCategory(g.category, locale) || m.filter.dash;
                 const regionLabel = displayRegion(g.region, locale) || m.filter.dash;
                 const statusText = statusLabel(m, g.status);
                 return (
-                <tr key={g.id}>
-                  <td className="row-num col-n">{i + 1}</td>
-                  <td className="col-platform" title={platformLabel}>{platformLabel}</td>
-                  <td className="col-category" title={categoryLabel}>{categoryLabel}</td>
-                  <td className="col-title" title={titleOrig || title}>
-                    <Link href={giveawayPath(locale, g.id)}>{title || m.filter.untitled}</Link>
-                  </td>
-                  <td className="col-prize" title={prizeOrig || prize}>
-                    {prize || m.filter.dash}
-                  </td>
-                  <td className="col-deadline" title={deadline.title || undefined}>
-                    {deadline.text || m.filter.dash}
-                  </td>
-                  <td className="col-region" title={regionLabel}>{regionLabel}</td>
-                  <td className="col-status" title={statusText}>{statusText}</td>
-                  <td className={g.risk ? "danger col-risk" : "col-risk"} title={g.riskEn || g.risk || ""}>
-                    {g.risk ? m.filter.hasRisk : m.filter.noRisk}
-                  </td>
-                </tr>
+                  <tr key={g.id}>
+                    <td className="row-num col-n">{pageStart + i + 1}</td>
+                    <td className="col-platform" title={platformLabel}>
+                      {platformLabel}
+                    </td>
+                    <td className="col-category" title={categoryLabel}>
+                      {categoryLabel}
+                    </td>
+                    <td className="col-title" title={g.titleOrig || g.title}>
+                      <Link href={giveawayPath(locale, g.id)}>{g.title || m.filter.untitled}</Link>
+                    </td>
+                    <td className="col-prize" title={g.prizeOrig || g.prize}>
+                      {g.prize || m.filter.dash}
+                    </td>
+                    <td className="col-deadline" title={deadline.title || undefined}>
+                      {deadline.text || m.filter.dash}
+                    </td>
+                    <td className="col-region" title={regionLabel}>
+                      {regionLabel}
+                    </td>
+                    <td className="col-status" title={statusText}>
+                      {statusText}
+                    </td>
+                    <td className={g.hasRisk ? "danger col-risk" : "col-risk"} title={g.riskTitle || ""}>
+                      {g.hasRisk ? m.filter.hasRisk : m.filter.noRisk}
+                    </td>
+                  </tr>
                 );
               })
             )}
           </tbody>
         </table>
       </div>
+      {filtered.length > SHEET_PAGE_SIZE ? (
+        <div className="sheet-pager">
+          <button type="button" className="reset" disabled={safePage <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>
+            {m.home.prevPage}
+          </button>
+          <span className="sheet-page">
+            {formatMsg(m.home.page, {
+              from: pageStart + 1,
+              to: pageStart + pageRows.length,
+              pages: pageCount,
+            })}
+          </span>
+          <button
+            type="button"
+            className="reset"
+            disabled={safePage >= pageCount}
+            onClick={() => setPage((p) => Math.min(pageCount, p + 1))}
+          >
+            {m.home.nextPage}
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 }

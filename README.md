@@ -42,7 +42,7 @@ See `.env.example`.
 
 The site reads `data/giveaways.json`. The master table (ops, e.g. `/home/box/giveaways/Giveaway主表.csv`) is not in git.
 
-Default import keeps **疑似进行中** (UI: Active (unverified) / 进行中（待核验）). Do not dump thousands of 状态不明 rows into Pages.
+Default import keeps **疑似进行中** (UI: Active (unverified) / 进行中（待核验）). Rows with a parseable deadline on a UTC day before today are marked **已结束/过期** at ingest and dropped from that slice. Do not dump thousands of 状态不明 rows into Pages.
 
 `KIE_API_KEY` is required for a live ingest (or pass `--skip-en` to stay offline). Optional `KIE_API_BASE` defaults to `https://api.kie.ai`. See `.env.example`. `npm run build` does **not** call Kie.
 
@@ -79,7 +79,7 @@ CSV headers: `id,项目名,平台,分类,主办方,奖品概述,奖项明细,截
 | 状态不明 | Unknown / 状态不明 | Hidden by default |
 | 已结束/过期 | Ended / 已结束 | Clearly expired |
 
-Default filters: active (unverified) + hide deadlines farther than 60 days or “2 months+” countdowns.
+Default filters: active (unverified) + hide past-deadline rows + hide deadlines farther than 60 days or “2 months+” countdowns. The directory homepage serializes current-locale title/prize only (full `titleI18n` / `prizeI18n` stay in `data/giveaways.json` and on detail pages).
 
 ## Deploy
 

@@ -255,6 +255,21 @@ h2 {
   white-space: nowrap;
 }
 
+.sheet-pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  background: var(--meta);
+  border-top: 1px solid var(--line);
+  font-size: 12px;
+}
+
+.sheet-page {
+  font-variant-numeric: tabular-nums;
+}
+
 .sheet-options select,
 .col-filter {
   border: 1px solid #7f7f7f;

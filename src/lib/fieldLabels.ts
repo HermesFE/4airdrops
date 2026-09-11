@@ -73,7 +73,7 @@ export function statusCode(raw?: string): StatusCode | "" {
   if (!s) return "";
   if (s === "疑似进行中" || s === "ongoing") return "ongoing";
   if (s === "状态不明" || s === "unknown") return "unknown";
-  if (s === "已结束/过期" || s === "ended") return "ended";
+  if (s === "已结束/过期" || s === "已结束" || s === "ended") return "ended";
   return "unknown";
 }
 
