@@ -16,6 +16,15 @@ test("visible promo / about / footer chrome does not say 返佣", () => {
   assert.match(en, /line: "Binance"/);
 });
 
+test("homepage coverage is the site row count (no masterOngoing prop)", () => {
+  const sheet = fs.readFileSync(path.join(ROOT, "src/components/GiveawaySheet.tsx"), "utf8");
+  const home = fs.readFileSync(path.join(ROOT, "src/components/DirectoryHome.tsx"), "utf8");
+  assert.match(sheet, /formatMsg\(m\.home\.coverage, \{ n: items\.length \}\)/);
+  assert.doesNotMatch(sheet, /masterOngoing/);
+  assert.doesNotMatch(home, /masterOngoing/);
+  assert.doesNotMatch(home, /getSyncMeta/);
+});
+
 test("directory sheet rows keep current-locale strings only", () => {
   const src = fs.readFileSync(path.join(ROOT, "src/lib/sheet.ts"), "utf8");
   assert.match(src, /current-locale display strings only/);

@@ -1,4 +1,5 @@
 import type { Locale } from "@/i18n/locales";
+import { isPlaceholderTitle, recoverTitle } from "./titles";
 import type { Giveaway, LocalizedText } from "./types";
 
 /** Display-only cleanup for scraped HTML/JS fragments. Does not change source JSON. */
@@ -34,10 +35,18 @@ export function pickLocalized(
 }
 
 export function displayTitle(
-  g: Pick<Giveaway, "title" | "titleEn" | "titleI18n">,
+  g: Pick<Giveaway, "title" | "titleEn" | "titleI18n" | "url" | "sourceUrl" | "host" | "prize" | "prizeEn" | "prizeDetail">,
   locale?: Locale,
 ): string {
-  return pickLocalized(g.titleI18n, g.titleEn, g.title, locale);
+  if (locale) {
+    const hit = cleanDisplayText(g.titleI18n?.[locale]);
+    if (hit && !isPlaceholderTitle(hit)) return hit;
+  }
+  const en = cleanDisplayText(g.titleEn);
+  if (en && !isPlaceholderTitle(en)) return en;
+  const original = cleanDisplayText(g.title);
+  if (original && !isPlaceholderTitle(original)) return original;
+  return recoverTitle(g);
 }
 
 export function displayPrize(

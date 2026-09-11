@@ -30,6 +30,81 @@ const CATEGORY_EN: Record<string, string> = {
   图书: "Books",
 };
 
+/** English (and mixed) category tokens → zh. Exact match only; do not invent. */
+const CATEGORY_ZH: Record<string, string> = {
+  Gaming: "游戏",
+  Books: "图书",
+  Other: "其他",
+  Crypto: "加密",
+  "Crypto/NFT": "加密/NFT",
+  "Crypto/USDT": "加密/USDT",
+  "Tech/Electronics": "科技/数码",
+  "Travel/Tickets": "出行/票务",
+  "Sports/Outdoor": "运动/户外",
+  Pet: "宠物",
+  "Cash/Gift Card": "现金礼卡",
+  "Home/Lifestyle": "家居/生活",
+  "Food/Drink": "食品饮料",
+  "Fashion/Merch": "时尚/周边",
+  "Food/Consumer": "食品",
+  "Food/Beverage": "食品饮料",
+  "Automotive/Sports": "汽车/运动",
+  "Travel/Lifestyle": "出行/生活",
+  "Consumer/Lifestyle": "消费/生活",
+  "Consumer/Beauty": "美妆",
+  Hardware: "硬件",
+  Travel: "出行旅游",
+  Merch: "周边/潮玩",
+};
+
+/** Whole-string English region → zh. Longer keys win via applyTokens. */
+const REGION_ZH_EXACT: Record<string, string> = {
+  WW: "全球",
+  Worldwide: "全球",
+  US: "美国",
+  "United States": "美国",
+  "United States of America": "美国",
+  CA: "加拿大",
+  Canada: "加拿大",
+  GB: "英国",
+  "United Kingdom": "英国",
+  PR: "波多黎各",
+  "Puerto Rico": "波多黎各",
+  France: "法国",
+  Australia: "澳大利亚",
+  Japan: "日本",
+  "California, 18+": "加州，18+",
+  "US 50 states & DC, 18+": "美国50州及D.C.，18+",
+  "US / Canada (excl. Quebec) per rules": "美国 / 加拿大（不含魁北克；以规则为准）",
+};
+
+const REGION_ZH_TOKENS: Record<string, string> = {
+  "United States of America": "美国",
+  "United States Minor Outlying Islands": "美国本土外小岛屿",
+  "United States": "美国",
+  "United Kingdom": "英国",
+  "Puerto Rico": "波多黎各",
+  Worldwide: "全球",
+  California: "加州",
+  Canada: "加拿大",
+  Australia: "澳大利亚",
+  Austria: "奥地利",
+  Switzerland: "瑞士",
+  Japan: "日本",
+  France: "法国",
+  Albania: "阿尔巴尼亚",
+  Andorra: "安道尔",
+  Aruba: "阿鲁巴",
+  Anguilla: "安圭拉",
+  Guam: "关岛",
+  Fiji: "斐济",
+  WW: "全球",
+  US: "美国",
+  CA: "加拿大",
+  GB: "英国",
+  PR: "波多黎各",
+};
+
 const REGION_EN: Record<string, string> = {
   全球: "Worldwide",
   以页面条款为准: "Per page terms",
@@ -83,11 +158,40 @@ function translateCrumbs(raw: string): string {
   return out.replace(/\s+/g, " ").trim();
 }
 
-function localizeCoded(raw: string | undefined, locale: Locale, exact: Record<string, string>): string {
+function applyTokens(raw: string, map: Record<string, string>): string {
+  const keys = Object.keys(map).sort((a, b) => b.length - a.length);
+  let out = raw;
+  for (const key of keys) {
+    const dest = map[key];
+    if (key.length <= 3 && /^[A-Z]+$/.test(key)) {
+      const re = new RegExp(`(^|[^A-Za-z])${key}(?=[^A-Za-z]|$)`, "g");
+      out = out.replace(re, `$1${dest}`);
+    } else if (out.includes(key)) {
+      out = out.split(key).join(dest);
+    }
+  }
+  return out;
+}
+
+function localizeCoded(
+  raw: string | undefined,
+  locale: Locale,
+  toEn: Record<string, string>,
+  toZh?: Record<string, string>,
+  zhTokens?: Record<string, string>,
+): string {
   const s = (raw || "").trim();
   if (!s) return "";
-  if (locale === "zh") return s;
-  if (exact[s]) return exact[s];
+  if (locale === "zh") {
+    if (toZh?.[s]) return toZh[s];
+    if (toEn[s]) return s;
+    if (zhTokens) {
+      const mapped = applyTokens(s, zhTokens);
+      if (mapped !== s) return mapped;
+    }
+    return s;
+  }
+  if (toEn[s]) return toEn[s];
   if (HAN.test(s)) return translateCrumbs(s);
   return s;
 }
@@ -97,11 +201,11 @@ export function displayPlatform(raw: string | undefined, locale: Locale): string
 }
 
 export function displayCategory(raw: string | undefined, locale: Locale): string {
-  return localizeCoded(raw, locale, CATEGORY_EN);
+  return localizeCoded(raw, locale, CATEGORY_EN, CATEGORY_ZH);
 }
 
 export function displayRegion(raw: string | undefined, locale: Locale): string {
-  return localizeCoded(raw, locale, REGION_EN);
+  return localizeCoded(raw, locale, REGION_EN, REGION_ZH_EXACT, REGION_ZH_TOKENS);
 }
 
 export function displayDeadline(raw: string | undefined, locale: Locale): string {

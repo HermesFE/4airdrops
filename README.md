@@ -42,7 +42,7 @@ See `.env.example`.
 
 The site reads `data/giveaways.json`. The master table (ops, e.g. `/home/box/giveaways/Giveaway主表.csv`) is not in git.
 
-Default import keeps **疑似进行中** (UI: Active (unverified) / 进行中（待核验）). Rows with a parseable deadline on a UTC day before today are marked **已结束/过期** at ingest and dropped from that slice. Do not dump thousands of 状态不明 rows into Pages.
+Default import keeps **疑似进行中** (UI: Active (unverified) / 进行中（待核验）). Rows with a parseable **absolute** deadline already before now are marked **已结束/过期** at ingest and dropped from that slice. `deadlineBj` clocks are treated as Beijing/CST unless the row labels UTC; date-only values compare calendar days in that timezone. Relative “N days / N months” countdowns are not auto-ended. List-scrape titles that are only `Providers` / 「提供商」 are repaired from the giveaway-list URL slug (or host/prize) before the ongoing filter; unresolved placeholders are dropped. Do not dump thousands of 状态不明 rows into Pages.
 
 `KIE_API_KEY` is required for a live ingest (or pass `--skip-en` to stay offline). Optional `KIE_API_BASE` defaults to `https://api.kie.ai`. See `.env.example`. `npm run build` does **not** call Kie.
 

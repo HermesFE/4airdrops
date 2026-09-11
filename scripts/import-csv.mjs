@@ -9,8 +9,11 @@
  *   首次发现, 开始时间   (optional)
  *
  * Default: keep 活动状态 === 疑似进行中 (the "ongoing / unverified" set).
- * Parseable deadlines already before today (UTC day) are marked 已结束/过期
- * and dropped from that default slice (see scripts/deadline.mjs).
+ * Parseable absolute datetimes already before now (BJ/CST clock unless the
+ * row labels UTC) are marked 已结束/过期 and dropped from that default slice.
+ * Relative "N days/months" countdowns are not auto-ended.
+ * Placeholder list-scrape titles (Providers / 提供商) are repaired from the
+ * campaign URL slug before the ongoing filter (see scripts/titles.mjs).
  * 状态不明 is ~thousands of rows — only include with --include-unknown.
  *
  * Content fields:
@@ -48,9 +51,11 @@ import {
 import {
   MASTER_STATUS_ENDED,
   MASTER_STATUS_ONGOING,
+  MASTER_STATUS_UNKNOWN,
   expirePastDeadlines,
   selectSiteItems,
 } from "./deadline.mjs";
+import { isPlaceholderTitle, repairPlaceholderTitles } from "./titles.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..");
@@ -297,18 +302,34 @@ if (mode === "gtx") {
   console.warn("Using unofficial Google gtx / MyMemory (--allow-gtx-fallback). Prefer KIE_API_KEY.");
 }
 
+function reconcileMasterCounts(counted, priorCounts, expiredN, ongoingKept) {
+  if (counted[MASTER_STATUS_UNKNOWN] != null) return counted;
+  const prior = priorCounts && typeof priorCounts === "object" ? priorCounts : {};
+  const priorOngoing = Number(prior[MASTER_STATUS_ONGOING]) || 0;
+  const unexplained = Math.max(0, priorOngoing - ongoingKept - expiredN);
+  return {
+    ...prior,
+    ...counted,
+    [MASTER_STATUS_UNKNOWN]: prior[MASTER_STATUS_UNKNOWN] ?? counted[MASTER_STATUS_UNKNOWN],
+    [MASTER_STATUS_ONGOING]: ongoingKept,
+    [MASTER_STATUS_ENDED]: (Number(prior[MASTER_STATUS_ENDED]) || 0) + expiredN + unexplained,
+  };
+}
+
 const { items: loaded, meta: inputMeta } = loadItems(abs);
 const all = loaded;
+const titleStats = repairPlaceholderTitles(all);
 const expiredN = expirePastDeadlines(all);
 const counted = countByStatus(all);
-const priorCounts = inputMeta?.sync?.masterCounts;
-const masterCounts =
-  priorCounts && Object.keys(priorCounts).length > Object.keys(counted).length ? priorCounts : counted;
 let items = selectSiteItems(all, {
   includeUnknown: args.includeUnknown,
   includeEnded: args.includeEnded,
 });
+const droppedPlaceholder = items.filter((i) => isPlaceholderTitle(i.title)).length;
+items = items.filter((i) => !isPlaceholderTitle(i.title));
 if (args.max > 0) items = items.slice(0, args.max);
+const ongoingKept = items.filter((i) => i.status === STATUS_ONGOING).length;
+const masterCounts = reconcileMasterCounts(counted, inputMeta?.sync?.masterCounts, expiredN, ongoingKept);
 
 const OUT = args.out ? path.resolve(args.out) : DEFAULT_OUT;
 const prevById = loadPrevious(OUT);
@@ -370,6 +391,9 @@ const payload = {
     defaultStatus: STATUS_ONGOING,
     endedStatus: STATUS_ENDED,
     expiredPastDeadline: expiredN,
+    repairedPlaceholderTitles: titleStats.repaired,
+    unresolvedPlaceholderTitles: titleStats.unresolved,
+    droppedPlaceholderTitles: droppedPlaceholder,
     includeUnknown: args.includeUnknown,
     masterCounts,
     command: "KIE_API_KEY=… npm run import-csv -- /path/to/Giveaway主表.csv",
@@ -392,6 +416,8 @@ fs.mkdirSync(path.dirname(OUT), { recursive: true });
 fs.writeFileSync(OUT, JSON.stringify(payload));
 console.log(`Wrote ${items.length} / ${all.length} rows -> ${path.relative(ROOT, OUT)}`);
 if (expiredN) console.log(`Expired past-deadline rows → ${STATUS_ENDED}:`, expiredN);
+if (titleStats.repaired) console.log(`Repaired placeholder titles:`, titleStats.repaired);
+if (droppedPlaceholder) console.log(`Dropped unresolved placeholder titles:`, droppedPlaceholder);
 console.log("Master status counts:", masterCounts);
 console.log("English display:", args.skipEn ? "skipped" : enStats);
 console.log("Content i18n:", skipI18nNetwork ? "skipped" : i18nStats);

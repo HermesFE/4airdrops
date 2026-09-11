@@ -8,7 +8,7 @@ const zh: Messages = {
     subtitle: "默认：进行中（待核验）· {date}",
     count: "{shown} / {total}",
     statusNote: "状态从公开列表页推断：有倒计时或未来日期标为进行中（待核验）；多数条目缺绝对截止日。",
-    coverage: "本表 {n} 条（主表进行中约 {master}）",
+    coverage: "本表 {n} 条",
     tip: "外链请核对官方域名；有风险先看备注。",
     reset: "重置",
     page: "{from}–{to}",
@@ -85,7 +85,7 @@ const es: Messages = {
     count: "{shown} / {total}",
     statusNote:
       "El estado se infiere de listas públicas: una cuenta atrás o una fecha futura → activo (sin verificar). La mayoría no tiene plazo absoluto.",
-    coverage: "{n} filas en el sitio (tabla maestra ~{master} activos/sin verificar)",
+    coverage: "{n} filas en el sitio",
     tip: "Comprueba el dominio oficial. Lee primero las notas de riesgo.",
     reset: "Restablecer",
     page: "{from}–{to}",
@@ -162,7 +162,7 @@ const pt: Messages = {
     count: "{shown} / {total}",
     statusNote:
       "O estado é inferido de listas públicas: contagem regressiva ou data futura → ativo (não verificado). A maioria não tem prazo absoluto.",
-    coverage: "{n} linhas no site (tabela mestre ~{master} ativos/não verificados)",
+    coverage: "{n} linhas no site",
     tip: "Confira o domínio oficial. Leia primeiro as notas de risco.",
     reset: "Redefinir",
     page: "{from}–{to}",
@@ -239,7 +239,7 @@ const ar: Messages = {
     count: "{shown} / {total}",
     statusNote:
       "تُستنتج الحالة من صفحات القوائم العامة: عدّاد أو تاريخ مستقبلي → نشط (غير متحقَّق). معظم الصفوف بلا موعد نهائي مطلق.",
-    coverage: "{n} صفوف في الموقع (الجدول الرئيسي ~{master} نشط/غير متحقَّق)",
+    coverage: "{n} صفوف في الموقع",
     tip: "تحقق من النطاق الرسمي. اقرأ ملاحظات المخاطر أولاً.",
     reset: "إعادة ضبط",
     page: "{from}–{to}",
@@ -316,7 +316,7 @@ const id: Messages = {
     count: "{shown} / {total}",
     statusNote:
       "Status disimpulkan dari halaman daftar publik: hitungan mundur atau tanggal mendatang → aktif (belum diverifikasi). Sebagian besar tanpa tenggat mutlak.",
-    coverage: "{n} baris di situs (tabel induk ~{master} aktif/belum diverifikasi)",
+    coverage: "{n} baris di situs",
     tip: "Periksa domain resmi. Baca catatan risiko dulu.",
     reset: "Reset",
     page: "{from}–{to}",
@@ -393,7 +393,7 @@ const ru: Messages = {
     count: "{shown} / {total}",
     statusNote:
       "Статус выводится из публичных списков: таймер или будущая дата → активно (не проверено). У большинства нет абсолютного дедлайна.",
-    coverage: "{n} строк на сайте (в мастер-таблице ~{master} активных/непроверенных)",
+    coverage: "{n} строк на сайте",
     tip: "Проверяйте официальный домен. Сначала читайте заметки о риске.",
     reset: "Сброс",
     page: "{from}–{to}",
@@ -470,7 +470,7 @@ const ja: Messages = {
     count: "{shown} / {total}",
     statusNote:
       "状態は公開リストから推定します。カウントダウンや将来日があれば進行中（未検証）。絶対締切がない行が大半です。",
-    coverage: "サイト {n} 件（マスター進行中 約 {master}）",
+    coverage: "サイト {n} 件",
     tip: "公式ドメインを確認し、リスク注記を先に読んでください。",
     reset: "リセット",
     page: "{from}–{to}",
@@ -547,7 +547,7 @@ const de: Messages = {
     count: "{shown} / {total}",
     statusNote:
       "Der Status wird aus öffentlichen Listen abgeleitet: Countdown oder Zukunftsdatum → aktiv (ungeprüft). Die meisten Zeilen haben keine absolute Frist.",
-    coverage: "{n} Zeilen auf der Site (Master ~{master} aktiv/ungeprüft)",
+    coverage: "{n} Zeilen auf der Site",
     tip: "Offizielle Domain prüfen. Risiko-Hinweise zuerst lesen.",
     reset: "Zurücksetzen",
     page: "{from}–{to}",
@@ -624,7 +624,7 @@ const fr: Messages = {
     count: "{shown} / {total}",
     statusNote:
       "Le statut est déduit des listes publiques : compte à rebours ou date future → actif (non vérifié). La plupart n’ont pas de date limite absolue.",
-    coverage: "{n} lignes sur le site (table maître ~{master} actifs/non vérifiés)",
+    coverage: "{n} lignes sur le site",
     tip: "Vérifiez le domaine officiel. Lisez d’abord les notes de risque.",
     reset: "Réinitialiser",
     page: "{from}–{to}",
@@ -701,7 +701,7 @@ const ko: Messages = {
     count: "{shown} / {total}",
     statusNote:
       "상태는 공개 목록에서 추정합니다. 카운트다운이나 미래 날짜가 있으면 진행 중(미검증). 절대 마감이 없는 행이 대부분입니다.",
-    coverage: "사이트 {n}행 (마스터 진행 중 약 {master})",
+    coverage: "사이트 {n}행",
     tip: "공식 도메인을 확인하고 위험 메모를 먼저 읽으세요.",
     reset: "초기화",
     page: "{from}–{to}",
@@ -778,7 +778,7 @@ const vi: Messages = {
     count: "{shown} / {total}",
     statusNote:
       "Trạng thái suy ra từ trang danh sách công khai: đếm ngược hoặc ngày tương lai → đang diễn ra (chưa xác minh). Phần lớn không có hạn chót tuyệt đối.",
-    coverage: "{n} dòng trên site (bảng gốc ~{master} đang diễn ra/chưa xác minh)",
+    coverage: "{n} dòng trên site",
     tip: "Kiểm tra tên miền chính thức. Đọc ghi chú rủi ro trước.",
     reset: "Đặt lại",
     page: "{from}–{to}",
@@ -855,7 +855,7 @@ const tr: Messages = {
     count: "{shown} / {total}",
     statusNote:
       "Durum herkese açık listelerden çıkarılır: geri sayım veya gelecek tarih → aktif (doğrulanmamış). Çoğunda mutlak son tarih yoktur.",
-    coverage: "Sitede {n} satır (ana tabloda ~{master} aktif/doğrulanmamış)",
+    coverage: "Sitede {n} satır",
     tip: "Resmi alan adını kontrol edin. Önce risk notlarını okuyun.",
     reset: "Sıfırla",
     page: "{from}–{to}",
@@ -932,7 +932,7 @@ const hi: Messages = {
     count: "{shown} / {total}",
     statusNote:
       "स्थिति सार्वजनिक सूचियों से अनुमानित है: काउंटडाउन या भविष्य की तारीख → सक्रिय (असत्यापित)। अधिकतर पंक्तियों में निश्चित समय-सीमा नहीं है।",
-    coverage: "साइट पर {n} पंक्तियाँ (मास्टर ~{master} सक्रिय/असत्यापित)",
+    coverage: "साइट पर {n} पंक्तियाँ",
     tip: "आधिकारिक डोमेन जाँचें। पहले जोखिम नोट पढ़ें।",
     reset: "रीसेट",
     page: "{from}–{to}",

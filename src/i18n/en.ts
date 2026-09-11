@@ -11,7 +11,7 @@ export const en = {
     count: "{shown} / {total}",
     statusNote:
       "Status is inferred from public list pages: a countdown or future date → active (unverified). Most rows lack an absolute deadline.",
-    coverage: "{n} rows on site (master ~{master} active/unverified)",
+    coverage: "{n} rows on site",
     tip: "Check official domains. Read risk notes first.",
     reset: "Reset",
     page: "{from}–{to}",

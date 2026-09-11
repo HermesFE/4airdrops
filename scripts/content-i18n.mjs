@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import { isPlaceholderTitle } from "./titles.mjs";
 
 /**
  * Ingest-time English + locale-matched title/prize fields.
@@ -176,6 +177,7 @@ function enLooksBad(src, en) {
   const s = cleanDisplayText(src);
   const e = (en || "").trim();
   if (!e) return true;
+  if (isPlaceholderTitle(e) && !isPlaceholderTitle(s)) return true;
   if (/PLEASE SELECT TWO DISTINCT|MYMEMORY WARNING|"404" "404"|QUERY LENGTH LIMIT/i.test(e)) return true;
   if (/^!{2,}/.test(e)) return true;
   if ((e.match(/404/g) || []).length >= 3) return true;
@@ -334,6 +336,7 @@ export async function kieTranslateBatch(texts, targetLang, { fetchImpl = fetch, 
       "Content-Type": "application/json",
     },
     body: JSON.stringify(buildKieTranslateBody(texts, targetLang)),
+    signal: AbortSignal.timeout(45_000),
   });
   const raw = await res.text();
   if (!res.ok) throw new Error(`kie ${res.status} ${raw.slice(0, 180)}`);
@@ -607,6 +610,11 @@ export async function fillI18nFields(items, { cache, stats, force = false, trans
       if (force) {
         for (const k of Object.keys(map)) delete map[k];
       }
+      if (spec.original === "title") {
+        for (const [k, v] of Object.entries(map)) {
+          if (isPlaceholderTitle(v)) delete map[k];
+        }
+      }
       if (en) map.en = en;
       else if (pivot) map.en = pivot;
       if (!pivot) {
@@ -614,7 +622,8 @@ export async function fillI18nFields(items, { cache, stats, force = false, trans
         continue;
       }
       for (const lang of NON_EN_LOCALES) {
-        if (!force && cleanDisplayText(map[lang])) {
+        const existing = cleanDisplayText(map[lang]);
+        if (!force && existing && !(spec.original === "title" && isPlaceholderTitle(existing))) {
           stats.reused += 1;
           continue;
         }
@@ -643,6 +652,7 @@ export async function fillI18nFields(items, { cache, stats, force = false, trans
     const sources = [...bucket.keys()];
     if (!sources.length) continue;
     const batches = chunkStrings(sources, translator.batchSize);
+    console.log(`i18n ${lang}: ${sources.length} strings in ${batches.length} batches`);
     for (const batch of batches) {
       let translated = [];
       try {
