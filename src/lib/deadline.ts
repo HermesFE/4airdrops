@@ -4,7 +4,14 @@ const MONTH_RE = /(\d+)\s*months?\b/i;
 const DAY_RE = /(\d+)\s*days?\b/i;
 const ISO_RE = /(\d{4})-(\d{2})-(\d{2})/;
 
-export function parseDeadlineMs(g: Giveaway): number | null {
+export type DeadlineFields = Pick<Giveaway, "deadlineBj" | "deadlineRaw">;
+
+function utcDayMs(ms: number): number {
+  const d = new Date(ms);
+  return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+}
+
+export function parseDeadlineMs(g: DeadlineFields, now = Date.now()): number | null {
   const bj = g.deadlineBj || "";
   const iso = bj.match(ISO_RE);
   if (iso) {
@@ -23,21 +30,21 @@ export function parseDeadlineMs(g: Giveaway): number | null {
   if (!Number.isNaN(parsed)) return parsed;
 
   const months = raw.match(MONTH_RE);
-  if (months) return Date.now() + Number(months[1]) * 30 * 86400000;
+  if (months) return now + Number(months[1]) * 30 * 86400000;
 
   const days = raw.match(DAY_RE);
-  if (days) return Date.now() + Number(days[1]) * 86400000;
+  if (days) return now + Number(days[1]) * 86400000;
 
   return null;
 }
 
-export function daysUntil(g: Giveaway, now = Date.now()): number | null {
-  const ms = parseDeadlineMs(g);
+export function daysUntil(g: DeadlineFields, now = Date.now()): number | null {
+  const ms = parseDeadlineMs(g, now);
   if (ms == null) return null;
   return Math.round((ms - now) / 86400000);
 }
 
-export function hasClearDeadline(g: Giveaway): boolean {
+export function hasClearDeadline(g: DeadlineFields): boolean {
   if (ISO_RE.test(g.deadlineBj || "")) return true;
   if (ISO_RE.test(g.deadlineRaw || "")) return true;
   if (DAY_RE.test(g.deadlineRaw || "")) return true;
@@ -46,13 +53,13 @@ export function hasClearDeadline(g: Giveaway): boolean {
   return false;
 }
 
-export function monthCountdown(g: Giveaway): number | null {
+export function monthCountdown(g: DeadlineFields): number | null {
   const m = (g.deadlineRaw || "").match(MONTH_RE);
   return m ? Number(m[1]) : null;
 }
 
 /** Far-future or multi-month countdown — likely a stale/zombie campaign. */
-export function isLongHorizon(g: Giveaway, horizonDays: number, now = Date.now()): boolean {
+export function isLongHorizon(g: DeadlineFields, horizonDays: number, now = Date.now()): boolean {
   const months = monthCountdown(g);
   if (months != null && months >= 2) return true;
   const days = daysUntil(g, now);
@@ -60,8 +67,25 @@ export function isLongHorizon(g: Giveaway, horizonDays: number, now = Date.now()
   return false;
 }
 
-export function sortDeadlineMs(g: Giveaway): number {
-  return parseDeadlineMs(g) ?? Number.MAX_SAFE_INTEGER;
+export function sortDeadlineMs(g: DeadlineFields, now = Date.now()): number {
+  return parseDeadlineMs(g, now) ?? Number.MAX_SAFE_INTEGER;
+}
+
+/**
+ * Absolute calendar/datetime deadline is on a UTC day before today.
+ * Relative "N days/months" countdowns are never treated as already ended.
+ * Keep in sync with scripts/deadline.mjs.
+ */
+export function isPastDeadline(g: DeadlineFields, now = Date.now()): boolean {
+  const bj = g.deadlineBj || "";
+  const raw = g.deadlineRaw || "";
+  const hasIso = ISO_RE.test(bj) || ISO_RE.test(raw);
+  const rawTrim = raw.replace(/\(.*$/, "").trim();
+  const hasAbsParse = Boolean(rawTrim) && !Number.isNaN(Date.parse(rawTrim)) && !MONTH_RE.test(rawTrim);
+  if (!hasIso && !hasAbsParse) return false;
+  const ms = parseDeadlineMs(g, now);
+  if (ms == null) return false;
+  return utcDayMs(ms) < utcDayMs(now);
 }
 
 const DT_RE = /(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?/;
@@ -77,7 +101,7 @@ export type FormattedDeadline = {
   title: string;
 };
 
-function rawDeadlineTitle(g: Giveaway): string {
+function rawDeadlineTitle(g: DeadlineFields): string {
   const bj = (g.deadlineBj || "").trim();
   const raw = (g.deadlineRaw || "").trim();
   if (bj && raw && bj !== raw) return `${bj} · ${raw}`;
@@ -93,7 +117,7 @@ function relativeShort(raw: string): string {
 }
 
 /** View-layer deadline: scannable YYYY-MM-DD[ HH:mm], or ~25d / ~2mo. */
-export function formatDeadline(g: Giveaway): FormattedDeadline {
+export function formatDeadline(g: DeadlineFields): FormattedDeadline {
   const bj = (g.deadlineBj || "").trim();
   const raw = (g.deadlineRaw || "").trim();
   const title = rawDeadlineTitle(g);

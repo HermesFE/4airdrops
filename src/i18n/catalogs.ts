@@ -11,6 +11,9 @@ const zh: Messages = {
     coverage: "本表 {n} 条（主表进行中约 {master}）",
     tip: "外链请核对官方域名；有风险先看备注。",
     reset: "重置",
+    page: "{from}–{to}",
+    prevPage: "上一页",
+    nextPage: "下一页",
   },
   options: {
     hideZombies: "隐藏长期未截止",
@@ -18,7 +21,7 @@ const zh: Messages = {
     onlyDated: "仅有明确截止",
     includeUnknown: "含状态不明",
   },
-  binance: { compact: "Binance 返佣注册", k: "推广", line: "Binance 返佣注册", suffix: "不增加手续费" },
+  binance: { compact: "Binance", k: "推广", line: "Binance", suffix: "不增加手续费" },
   columns: {
     n: "#",
     platform: "平台",
@@ -47,7 +50,7 @@ const zh: Messages = {
     title: "关于 4Airdrops",
     body: "把多平台 Giveaway / 抽奖 / 交易所活动收成一张表。状态由公开列表页推断，缺截止日时标为进行中（待核验），不构成投资建议。",
     moneyTitle: "变现",
-    moneyBody: "目前以 Binance 注册返佣维持站点。目录免费；提醒 / API 等有稳定流量后再做。",
+    moneyBody: "本站通过 Binance 联盟链接维持运营。目录免费；提醒 / API 等有稳定流量后再做。",
   },
   detail: {
     back: "← 返回目录",
@@ -69,7 +72,7 @@ const zh: Messages = {
   },
   footer: {
     title: "披露 / Disclosure",
-    body: "本站含 {link}。经此链接注册交易，我们可能获得返佣，不增加你的费用。信息来自公开聚合，可能过期或有风险，请自行核实（DYOR）。我们不保管助记词，也不要求连接钱包领奖。",
+    body: "本站含 {link}。经此链接注册交易，我们可能获得联盟佣金，不增加你的费用。信息来自公开聚合，可能过期或有风险，请自行核实（DYOR）。我们不保管助记词，也不要求连接钱包领奖。",
     link: "Binance 联盟推广链接",
   },
 };
@@ -85,6 +88,9 @@ const es: Messages = {
     coverage: "{n} filas en el sitio (tabla maestra ~{master} activos/sin verificar)",
     tip: "Comprueba el dominio oficial. Lee primero las notas de riesgo.",
     reset: "Restablecer",
+    page: "{from}–{to}",
+    prevPage: "Ant.",
+    nextPage: "Sig.",
   },
   options: {
     hideZombies: "Ocultar plazo lejano",
@@ -92,7 +98,7 @@ const es: Messages = {
     onlyDated: "Solo con plazo claro",
     includeUnknown: "Incluir estado desconocido",
   },
-  binance: { compact: "Referido Binance", k: "Promo", line: "Registro con referido Binance", suffix: "sin coste extra" },
+  binance: { compact: "Binance", k: "Promo", line: "Binance", suffix: "sin coste extra" },
   columns: {
     n: "#",
     platform: "Plataforma",
@@ -159,6 +165,9 @@ const pt: Messages = {
     coverage: "{n} linhas no site (tabela mestre ~{master} ativos/não verificados)",
     tip: "Confira o domínio oficial. Leia primeiro as notas de risco.",
     reset: "Redefinir",
+    page: "{from}–{to}",
+    prevPage: "Ant.",
+    nextPage: "Próx.",
   },
   options: {
     hideZombies: "Ocultar prazo longo",
@@ -166,7 +175,7 @@ const pt: Messages = {
     onlyDated: "Só com prazo claro",
     includeUnknown: "Incluir estado desconhecido",
   },
-  binance: { compact: "Indicação Binance", k: "Promo", line: "Cadastro com indicação Binance", suffix: "sem taxa extra" },
+  binance: { compact: "Binance", k: "Promo", line: "Binance", suffix: "sem taxa extra" },
   columns: {
     n: "#",
     platform: "Plataforma",
@@ -233,6 +242,9 @@ const ar: Messages = {
     coverage: "{n} صفوف في الموقع (الجدول الرئيسي ~{master} نشط/غير متحقَّق)",
     tip: "تحقق من النطاق الرسمي. اقرأ ملاحظات المخاطر أولاً.",
     reset: "إعادة ضبط",
+    page: "{from}–{to}",
+    prevPage: "السابق",
+    nextPage: "التالي",
   },
   options: {
     hideZombies: "إخفاء المواعيد البعيدة",
@@ -240,7 +252,7 @@ const ar: Messages = {
     onlyDated: "موعد واضح فقط",
     includeUnknown: "تضمين الحالة غير المعروفة",
   },
-  binance: { compact: "إحالة Binance", k: "ترويج", line: "تسجيل إحالة Binance", suffix: "بدون رسوم إضافية" },
+  binance: { compact: "Binance", k: "ترويج", line: "Binance", suffix: "بدون رسوم إضافية" },
   columns: {
     n: "#",
     platform: "المنصة",
@@ -307,6 +319,9 @@ const id: Messages = {
     coverage: "{n} baris di situs (tabel induk ~{master} aktif/belum diverifikasi)",
     tip: "Periksa domain resmi. Baca catatan risiko dulu.",
     reset: "Reset",
+    page: "{from}–{to}",
+    prevPage: "Sebelum",
+    nextPage: "Berikut",
   },
   options: {
     hideZombies: "Sembunyikan tenggat jauh",
@@ -314,7 +329,7 @@ const id: Messages = {
     onlyDated: "Hanya yang ada tenggat jelas",
     includeUnknown: "Sertakan status tidak jelas",
   },
-  binance: { compact: "Referral Binance", k: "Promo", line: "Daftar referral Binance", suffix: "tanpa biaya ekstra" },
+  binance: { compact: "Binance", k: "Promo", line: "Binance", suffix: "tanpa biaya ekstra" },
   columns: {
     n: "#",
     platform: "Platform",
@@ -381,6 +396,9 @@ const ru: Messages = {
     coverage: "{n} строк на сайте (в мастер-таблице ~{master} активных/непроверенных)",
     tip: "Проверяйте официальный домен. Сначала читайте заметки о риске.",
     reset: "Сброс",
+    page: "{from}–{to}",
+    prevPage: "Назад",
+    nextPage: "Далее",
   },
   options: {
     hideZombies: "Скрыть далёкие сроки",
@@ -388,7 +406,7 @@ const ru: Messages = {
     onlyDated: "Только с ясным сроком",
     includeUnknown: "Включать неизвестный статус",
   },
-  binance: { compact: "Реферал Binance", k: "Промо", line: "Регистрация по рефералу Binance", suffix: "без доп. комиссий" },
+  binance: { compact: "Binance", k: "Промо", line: "Binance", suffix: "без доп. комиссий" },
   columns: {
     n: "#",
     platform: "Платформа",
@@ -455,6 +473,9 @@ const ja: Messages = {
     coverage: "サイト {n} 件（マスター進行中 約 {master}）",
     tip: "公式ドメインを確認し、リスク注記を先に読んでください。",
     reset: "リセット",
+    page: "{from}–{to}",
+    prevPage: "前へ",
+    nextPage: "次へ",
   },
   options: {
     hideZombies: "遠い締切を隠す",
@@ -462,7 +483,7 @@ const ja: Messages = {
     onlyDated: "明確な締切のみ",
     includeUnknown: "状態不明を含める",
   },
-  binance: { compact: "Binance紹介", k: "宣伝", line: "Binance紹介登録", suffix: "追加手数料なし" },
+  binance: { compact: "Binance", k: "宣伝", line: "Binance", suffix: "追加手数料なし" },
   columns: {
     n: "#",
     platform: "プラットフォーム",
@@ -529,6 +550,9 @@ const de: Messages = {
     coverage: "{n} Zeilen auf der Site (Master ~{master} aktiv/ungeprüft)",
     tip: "Offizielle Domain prüfen. Risiko-Hinweise zuerst lesen.",
     reset: "Zurücksetzen",
+    page: "{from}–{to}",
+    prevPage: "Zurück",
+    nextPage: "Weiter",
   },
   options: {
     hideZombies: "Ferne Fristen ausblenden",
@@ -536,7 +560,7 @@ const de: Messages = {
     onlyDated: "Nur mit klarer Frist",
     includeUnknown: "Unbekannten Status einschließen",
   },
-  binance: { compact: "Binance-Empfehlung", k: "Promo", line: "Binance-Registrierung (Ref)", suffix: "keine Extra-Gebühr" },
+  binance: { compact: "Binance", k: "Promo", line: "Binance", suffix: "keine Extra-Gebühr" },
   columns: {
     n: "#",
     platform: "Plattform",
@@ -603,6 +627,9 @@ const fr: Messages = {
     coverage: "{n} lignes sur le site (table maître ~{master} actifs/non vérifiés)",
     tip: "Vérifiez le domaine officiel. Lisez d’abord les notes de risque.",
     reset: "Réinitialiser",
+    page: "{from}–{to}",
+    prevPage: "Préc.",
+    nextPage: "Suiv.",
   },
   options: {
     hideZombies: "Masquer les échéances lointaines",
@@ -610,7 +637,7 @@ const fr: Messages = {
     onlyDated: "Échéance claire uniquement",
     includeUnknown: "Inclure le statut inconnu",
   },
-  binance: { compact: "Parrainage Binance", k: "Promo", line: "Inscription parrainage Binance", suffix: "sans frais extra" },
+  binance: { compact: "Binance", k: "Promo", line: "Binance", suffix: "sans frais extra" },
   columns: {
     n: "#",
     platform: "Plateforme",
@@ -677,6 +704,9 @@ const ko: Messages = {
     coverage: "사이트 {n}행 (마스터 진행 중 약 {master})",
     tip: "공식 도메인을 확인하고 위험 메모를 먼저 읽으세요.",
     reset: "초기화",
+    page: "{from}–{to}",
+    prevPage: "이전",
+    nextPage: "다음",
   },
   options: {
     hideZombies: "먼 마감 숨기기",
@@ -684,7 +714,7 @@ const ko: Messages = {
     onlyDated: "명확한 마감만",
     includeUnknown: "상태 불명 포함",
   },
-  binance: { compact: "Binance 추천", k: "홍보", line: "Binance 추천 가입", suffix: "추가 수수료 없음" },
+  binance: { compact: "Binance", k: "홍보", line: "Binance", suffix: "추가 수수료 없음" },
   columns: {
     n: "#",
     platform: "플랫폼",
@@ -751,6 +781,9 @@ const vi: Messages = {
     coverage: "{n} dòng trên site (bảng gốc ~{master} đang diễn ra/chưa xác minh)",
     tip: "Kiểm tra tên miền chính thức. Đọc ghi chú rủi ro trước.",
     reset: "Đặt lại",
+    page: "{from}–{to}",
+    prevPage: "Trước",
+    nextPage: "Sau",
   },
   options: {
     hideZombies: "Ẩn hạn xa",
@@ -758,7 +791,7 @@ const vi: Messages = {
     onlyDated: "Chỉ có hạn rõ",
     includeUnknown: "Gồm trạng thái không rõ",
   },
-  binance: { compact: "Giới thiệu Binance", k: "Promo", line: "Đăng ký referral Binance", suffix: "không phí thêm" },
+  binance: { compact: "Binance", k: "Promo", line: "Binance", suffix: "không phí thêm" },
   columns: {
     n: "#",
     platform: "Nền tảng",
@@ -825,6 +858,9 @@ const tr: Messages = {
     coverage: "Sitede {n} satır (ana tabloda ~{master} aktif/doğrulanmamış)",
     tip: "Resmi alan adını kontrol edin. Önce risk notlarını okuyun.",
     reset: "Sıfırla",
+    page: "{from}–{to}",
+    prevPage: "Önceki",
+    nextPage: "Sonraki",
   },
   options: {
     hideZombies: "Uzak tarihleri gizle",
@@ -832,7 +868,7 @@ const tr: Messages = {
     onlyDated: "Yalnızca net tarih",
     includeUnknown: "Bilinmeyen durumu dahil et",
   },
-  binance: { compact: "Binance referans", k: "Tanıtım", line: "Binance referans kaydı", suffix: "ek ücret yok" },
+  binance: { compact: "Binance", k: "Tanıtım", line: "Binance", suffix: "ek ücret yok" },
   columns: {
     n: "#",
     platform: "Platform",
@@ -899,6 +935,9 @@ const hi: Messages = {
     coverage: "साइट पर {n} पंक्तियाँ (मास्टर ~{master} सक्रिय/असत्यापित)",
     tip: "आधिकारिक डोमेन जाँचें। पहले जोखिम नोट पढ़ें।",
     reset: "रीसेट",
+    page: "{from}–{to}",
+    prevPage: "पिछला",
+    nextPage: "अगला",
   },
   options: {
     hideZombies: "दूर की समय-सीमा छिपाएँ",
@@ -906,7 +945,7 @@ const hi: Messages = {
     onlyDated: "केवल स्पष्ट समय-सीमा",
     includeUnknown: "अज्ञात स्थिति शामिल करें",
   },
-  binance: { compact: "Binance रेफ़रल", k: "प्रचार", line: "Binance रेफ़रल पंजीकरण", suffix: "कोई अतिरिक्त शुल्क नहीं" },
+  binance: { compact: "Binance", k: "प्रचार", line: "Binance", suffix: "कोई अतिरिक्त शुल्क नहीं" },
   columns: {
     n: "#",
     platform: "प्लेटफ़ॉर्म",

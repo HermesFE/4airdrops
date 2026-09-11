@@ -9,6 +9,8 @@
  *   首次发现, 开始时间   (optional)
  *
  * Default: keep 活动状态 === 疑似进行中 (the "ongoing / unverified" set).
+ * Parseable deadlines already before today (UTC day) are marked 已结束/过期
+ * and dropped from that default slice (see scripts/deadline.mjs).
  * 状态不明 is ~thousands of rows — only include with --include-unknown.
  *
  * Content fields:
@@ -43,6 +45,12 @@ import {
   loadDotEnv,
   reuseUnchangedContent,
 } from "./content-i18n.mjs";
+import {
+  MASTER_STATUS_ENDED,
+  MASTER_STATUS_ONGOING,
+  expirePastDeadlines,
+  selectSiteItems,
+} from "./deadline.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..");
@@ -50,8 +58,8 @@ loadDotEnv(path.join(ROOT, ".env"));
 
 const DEFAULT_OUT = path.join(ROOT, "data", "giveaways.json");
 
-const STATUS_ONGOING = "疑似进行中";
-const STATUS_UNKNOWN = "状态不明";
+const STATUS_ONGOING = MASTER_STATUS_ONGOING;
+const STATUS_ENDED = MASTER_STATUS_ENDED;
 
 const COL = {
   id: ["id"],
@@ -291,15 +299,14 @@ if (mode === "gtx") {
 
 const { items: loaded, meta: inputMeta } = loadItems(abs);
 const all = loaded;
+const expiredN = expirePastDeadlines(all);
 const counted = countByStatus(all);
 const priorCounts = inputMeta?.sync?.masterCounts;
 const masterCounts =
   priorCounts && Object.keys(priorCounts).length > Object.keys(counted).length ? priorCounts : counted;
-let items = all.filter((i) => {
-  if (i.status === STATUS_ONGOING) return true;
-  if (args.includeUnknown && i.status === STATUS_UNKNOWN) return true;
-  if (args.includeEnded) return true;
-  return false;
+let items = selectSiteItems(all, {
+  includeUnknown: args.includeUnknown,
+  includeEnded: args.includeEnded,
 });
 if (args.max > 0) items = items.slice(0, args.max);
 
@@ -361,6 +368,8 @@ const payload = {
   sync: {
     source: inputMeta?.sync?.source || path.basename(abs),
     defaultStatus: STATUS_ONGOING,
+    endedStatus: STATUS_ENDED,
+    expiredPastDeadline: expiredN,
     includeUnknown: args.includeUnknown,
     masterCounts,
     command: "KIE_API_KEY=… npm run import-csv -- /path/to/Giveaway主表.csv",
@@ -382,6 +391,7 @@ const payload = {
 fs.mkdirSync(path.dirname(OUT), { recursive: true });
 fs.writeFileSync(OUT, JSON.stringify(payload));
 console.log(`Wrote ${items.length} / ${all.length} rows -> ${path.relative(ROOT, OUT)}`);
+if (expiredN) console.log(`Expired past-deadline rows → ${STATUS_ENDED}:`, expiredN);
 console.log("Master status counts:", masterCounts);
 console.log("English display:", args.skipEn ? "skipped" : enStats);
 console.log("Content i18n:", skipI18nNetwork ? "skipped" : i18nStats);

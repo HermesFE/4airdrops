@@ -14,6 +14,9 @@ export const en = {
     coverage: "{n} rows on site (master ~{master} active/unverified)",
     tip: "Check official domains. Read risk notes first.",
     reset: "Reset",
+    page: "{from}–{to}",
+    prevPage: "Prev",
+    nextPage: "Next",
   },
   options: {
     hideZombies: "Hide long-horizon",
@@ -22,9 +25,9 @@ export const en = {
     includeUnknown: "Include unknown status",
   },
   binance: {
-    compact: "Binance referral",
+    compact: "Binance",
     k: "Promo",
-    line: "Binance referral signup",
+    line: "Binance",
     suffix: "no extra fee",
   },
   columns: {

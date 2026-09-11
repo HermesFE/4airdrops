@@ -8,6 +8,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return homeMetadata(locale);
 }
 
-export default function LocaleHomePage() {
-  return <DirectoryHome />;
+export default async function LocaleHomePage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  if (!isLocale(locale)) return null;
+  return <DirectoryHome locale={locale} />;
 }
