@@ -22,14 +22,12 @@ export function GiveawaySheet({
   categories,
   regions,
   updatedAt,
-  masterOngoing,
 }: {
   items: SheetRow[];
   platforms: string[];
   categories: string[];
   regions: string[];
   updatedAt: string;
-  masterOngoing?: number;
 }) {
   const { m, locale } = useI18n();
   const statuses = useMemo(() => statusesOf(items), [items]);
@@ -144,7 +142,7 @@ export function GiveawaySheet({
         <h1>{m.home.title}</h1>
         <span className="sheet-sub" title={m.home.tip}>
           {formatMsg(m.home.subtitle, { date: updatedAt || "—" })}
-          {masterOngoing ? ` · ${formatMsg(m.home.coverage, { n: items.length, master: masterOngoing })}` : ""}
+          {` · ${formatMsg(m.home.coverage, { n: items.length })}`}
         </span>
         <span className="sheet-count">{formatMsg(m.home.count, { shown: filtered.length, total: items.length })}</span>
         {!defaults ? (

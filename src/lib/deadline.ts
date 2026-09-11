@@ -3,39 +3,90 @@ import type { Giveaway } from "./types";
 const MONTH_RE = /(\d+)\s*months?\b/i;
 const DAY_RE = /(\d+)\s*days?\b/i;
 const ISO_RE = /(\d{4})-(\d{2})-(\d{2})/;
+const ISO_DT_RE = /(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?/;
+
+/** deadlineBj is a Beijing/CST display clock unless the row labels UTC. */
+export const BJ_OFFSET_HOURS = 8;
 
 export type DeadlineFields = Pick<Giveaway, "deadlineBj" | "deadlineRaw">;
 
-function utcDayMs(ms: number): number {
-  const d = new Date(ms);
-  return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate());
+export type ParsedDeadline = {
+  ms: number;
+  hasTime: boolean;
+  absolute: boolean;
+  offsetHours: number;
+};
+
+function pad2(n: number): string {
+  return String(n).padStart(2, "0");
+}
+
+export function offsetSuffix(hours: number): string {
+  const sign = hours >= 0 ? "+" : "-";
+  return `${sign}${pad2(Math.abs(hours))}:00`;
+}
+
+/** Offset for a deadlineBj clock. `（UTC 9/14 22:59）` is a conversion footnote. */
+export function bjClockOffsetHours(bj: string): number {
+  const s = bj || "";
+  const utcOff = s.match(/UTC\s*([+-])\s*(\d{1,2})/i);
+  if (utcOff) return (utcOff[1] === "-" ? -1 : 1) * Number(utcOff[2]);
+  if (/按UTC估/.test(s)) return 0;
+  if (/[（(]UTC[）)]/i.test(s) && !/[（(]UTC\s+\d{1,2}\/\d{1,2}/i.test(s)) return 0;
+  return BJ_OFFSET_HOURS;
+}
+
+function rawHasLabeledTz(raw: string): boolean {
+  return /\b(?:UTC|GMT)(?:\s*[+-]\s*\d{1,2})?\b/i.test(raw || "");
+}
+
+export function calendarDayUtc(ms: number, offsetHours: number): number {
+  const shifted = new Date(ms + offsetHours * 3600 * 1000);
+  return Date.UTC(shifted.getUTCFullYear(), shifted.getUTCMonth(), shifted.getUTCDate());
+}
+
+export function parseDeadlineParts(g: DeadlineFields, now = Date.now()): ParsedDeadline | null {
+  const bj = g.deadlineBj || "";
+  const raw = g.deadlineRaw || "";
+
+  const iso = bj.match(ISO_DT_RE) || raw.match(ISO_DT_RE);
+  if (iso) {
+    const hasTime = Boolean(iso[4] && iso[5]);
+    const offsetHours = bj ? bjClockOffsetHours(bj) : BJ_OFFSET_HOURS;
+    const hh = hasTime ? iso[4] : "00";
+    const mm = hasTime ? iso[5] : "00";
+    const ms = Date.parse(`${iso[1]}-${iso[2]}-${iso[3]}T${hh}:${mm}:00${offsetSuffix(offsetHours)}`);
+    if (!Number.isNaN(ms)) return { ms, hasTime, absolute: true, offsetHours };
+  }
+
+  const rawTrim = raw.replace(/\(started[^)]*\)/gi, "").replace(/\(.*$/, "").trim();
+  if (rawTrim && rawHasLabeledTz(raw) && !MONTH_RE.test(rawTrim)) {
+    const parsed = Date.parse(rawTrim);
+    if (!Number.isNaN(parsed)) {
+      return { ms: parsed, hasTime: /\d{1,2}:\d{2}/.test(rawTrim), absolute: true, offsetHours: 0 };
+    }
+  }
+
+  if (rawTrim && !MONTH_RE.test(rawTrim) && !DAY_RE.test(rawTrim)) {
+    const parsed = Date.parse(rawTrim);
+    if (!Number.isNaN(parsed)) {
+      return { ms: parsed, hasTime: /\d{1,2}:\d{2}/.test(rawTrim), absolute: true, offsetHours: 0 };
+    }
+  }
+
+  const months = raw.match(MONTH_RE);
+  if (months) {
+    return { ms: now + Number(months[1]) * 30 * 86400000, hasTime: false, absolute: false, offsetHours: BJ_OFFSET_HOURS };
+  }
+  const days = raw.match(DAY_RE);
+  if (days) {
+    return { ms: now + Number(days[1]) * 86400000, hasTime: false, absolute: false, offsetHours: BJ_OFFSET_HOURS };
+  }
+  return null;
 }
 
 export function parseDeadlineMs(g: DeadlineFields, now = Date.now()): number | null {
-  const bj = g.deadlineBj || "";
-  const iso = bj.match(ISO_RE);
-  if (iso) {
-    const ms = Date.parse(`${iso[1]}-${iso[2]}-${iso[3]}T00:00:00Z`);
-    if (!Number.isNaN(ms)) return ms;
-  }
-
-  const raw = g.deadlineRaw || "";
-  const rawIso = raw.match(ISO_RE);
-  if (rawIso) {
-    const ms = Date.parse(`${rawIso[1]}-${rawIso[2]}-${rawIso[3]}T00:00:00Z`);
-    if (!Number.isNaN(ms)) return ms;
-  }
-
-  const parsed = Date.parse(raw.replace(/\(.*$/, "").trim());
-  if (!Number.isNaN(parsed)) return parsed;
-
-  const months = raw.match(MONTH_RE);
-  if (months) return now + Number(months[1]) * 30 * 86400000;
-
-  const days = raw.match(DAY_RE);
-  if (days) return now + Number(days[1]) * 86400000;
-
-  return null;
+  return parseDeadlineParts(g, now)?.ms ?? null;
 }
 
 export function daysUntil(g: DeadlineFields, now = Date.now()): number | null {
@@ -72,20 +123,17 @@ export function sortDeadlineMs(g: DeadlineFields, now = Date.now()): number {
 }
 
 /**
- * Absolute calendar/datetime deadline is on a UTC day before today.
- * Relative "N days/months" countdowns are never treated as already ended.
+ * Absolute deadline is ended when that instant is before now.
+ * Date-only values compare calendar days in the deadline's timezone
+ * (BJ/CST unless the row labels UTC). Relative "N days/months"
+ * countdowns are never treated as already ended.
  * Keep in sync with scripts/deadline.mjs.
  */
 export function isPastDeadline(g: DeadlineFields, now = Date.now()): boolean {
-  const bj = g.deadlineBj || "";
-  const raw = g.deadlineRaw || "";
-  const hasIso = ISO_RE.test(bj) || ISO_RE.test(raw);
-  const rawTrim = raw.replace(/\(.*$/, "").trim();
-  const hasAbsParse = Boolean(rawTrim) && !Number.isNaN(Date.parse(rawTrim)) && !MONTH_RE.test(rawTrim);
-  if (!hasIso && !hasAbsParse) return false;
-  const ms = parseDeadlineMs(g, now);
-  if (ms == null) return false;
-  return utcDayMs(ms) < utcDayMs(now);
+  const parts = parseDeadlineParts(g, now);
+  if (!parts || !parts.absolute) return false;
+  if (parts.hasTime) return parts.ms < now;
+  return calendarDayUtc(parts.ms, parts.offsetHours) < calendarDayUtc(now, parts.offsetHours);
 }
 
 const DT_RE = /(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2}))?/;

@@ -1,6 +1,7 @@
 import type { Locale } from "@/i18n/locales";
 import { isPastDeadline } from "./deadline";
 import { displayPrize, displayRisk, displayTitle, originalIfDifferent } from "./text";
+import { isPlaceholderTitle } from "./titles";
 import type { Giveaway } from "./types";
 
 /** Rows per page on the directory sheet (Excel-like pager, not full-table DOM). */
@@ -62,7 +63,11 @@ export function toSheetRows(items: Giveaway[], locale: Locale): SheetRow[] {
   return items.map((g) => toSheetRow(g, locale));
 }
 
-/** Default directory slice: hide past-deadline rows (import should have marked them ended). */
-export function hideFromDefaultSheet(row: Pick<SheetRow, "deadlineBj" | "deadlineRaw" | "status">, now = Date.now()): boolean {
+/** Default directory slice: hide past-deadline / leftover placeholder-title rows. */
+export function hideFromDefaultSheet(
+  row: Pick<SheetRow, "deadlineBj" | "deadlineRaw" | "status" | "title">,
+  now = Date.now(),
+): boolean {
+  if (isPlaceholderTitle(row.title)) return true;
   return isPastDeadline(row, now);
 }
