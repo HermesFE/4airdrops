@@ -336,6 +336,7 @@ export async function kieTranslateBatch(texts, targetLang, { fetchImpl = fetch, 
       "Content-Type": "application/json",
     },
     body: JSON.stringify(buildKieTranslateBody(texts, targetLang)),
+    signal: AbortSignal.timeout(45_000),
   });
   const raw = await res.text();
   if (!res.ok) throw new Error(`kie ${res.status} ${raw.slice(0, 180)}`);
@@ -651,6 +652,7 @@ export async function fillI18nFields(items, { cache, stats, force = false, trans
     const sources = [...bucket.keys()];
     if (!sources.length) continue;
     const batches = chunkStrings(sources, translator.batchSize);
+    console.log(`i18n ${lang}: ${sources.length} strings in ${batches.length} batches`);
     for (const batch of batches) {
       let translated = [];
       try {

@@ -1,12 +1,18 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import test from "node:test";
 import {
   isPlaceholderTitle,
+  itemHasPlaceholderTitle,
   recoverTitle,
   recoverTitleFromUrl,
   repairPlaceholderTitles,
   titleFromSlug,
 } from "./titles.mjs";
+
+const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 test("isPlaceholderTitle detects Providers and locale leftovers", () => {
   assert.equal(isPlaceholderTitle("Providers"), true);
@@ -84,4 +90,13 @@ test("repairPlaceholderTitles rewrites title/titleEn and strips leftover i18n", 
   assert.equal(items[1].titleI18n.en, "Courtside Giveaway");
   assert.equal(items[1].titleI18n.zh, undefined);
   assert.equal(items[2].title, "提供商");
+});
+
+test("site giveaways.json has no leftover Providers / 提供商 titles", () => {
+  const data = JSON.parse(fs.readFileSync(path.join(ROOT, "data/giveaways.json"), "utf8"));
+  const bad = (data.items || []).filter(
+    (i) => itemHasPlaceholderTitle(i) || isPlaceholderTitle(i.title) || isPlaceholderTitle(i.titleEn),
+  );
+  assert.equal(bad.length, 0);
+  assert.equal((data.items || []).some((i) => /提供商|Providers/i.test(i.titleI18n?.zh || "")), false);
 });
