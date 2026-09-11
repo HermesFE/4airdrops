@@ -243,6 +243,14 @@ export function parseKieTranslations(content, expected) {
   if (!Array.isArray(parsed)) throw new Error("kie parse: not an array");
   const rows = parsed.map((x) => (x == null ? "" : String(x).trim()));
   if (typeof expected === "number" && rows.length !== expected) {
+    // Kie sometimes returns a longer array / object-values dump for a single string.
+    if (expected === 1 && rows.length > 1) {
+      const first = rows.find((r) => r) || "";
+      return [first];
+    }
+    if (expected > 1 && rows.length > expected) {
+      return rows.slice(0, expected);
+    }
     throw new Error(`kie parse: expected ${expected} strings, got ${rows.length}`);
   }
   return rows;
@@ -480,6 +488,11 @@ async function translateBatchWithRetry(translator, batch, targetLang) {
       }
       await sleep(400 * (attempt + 1));
     }
+  }
+  // Single-string Kie quirks: don't abort the whole daily import.
+  if (translator.mode === "kie" && batch.length === 1) {
+    console.warn("kie single-string translate failed, leaving empty:", String(batch[0]).slice(0, 60), lastErr?.message || lastErr);
+    return [""];
   }
   throw lastErr || new Error("translate failed");
 }
